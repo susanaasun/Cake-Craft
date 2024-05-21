@@ -157,15 +157,26 @@ export class Assignment2 extends Base_Scene {
     this.draw_strawberry = false;
   }
 
-  set_colors() {
-    this.layer_color = hex_color(
-      "#" + Math.floor(Math.random() * 16777215).toString(16),
-    );
+  set_colors(color = "w") {
+    if (color == "r"){
+      this.layer_color = hex_color("#9c0000")
+    } else if (color == "c"){
+      this.layer_color = hex_color("#352728")
+    }else{
+      this.layer_color = hex_color("#faf3eb")
+    }
+    
   }
 
   make_control_panel() {
-    this.key_triggered_button("Change Cake Color", ["c"], () =>
-      this.set_colors(),
+    this.key_triggered_button("Red Velvet", ["r"], () =>
+      this.set_colors("r"),
+    );
+    this.key_triggered_button("Chocolate", ["c"], () =>
+      this.set_colors("c"),
+    );
+    this.key_triggered_button("Vanilla", ["v"], () =>
+      this.set_colors("w"),
     );
     this.key_triggered_button("Increase Cake Layers", ["i"], () =>
       this.change_layer_count(1),
