@@ -27,6 +27,7 @@ export class Elements extends Scene {
       ),
       oven: new Cube(),
       ovenrack: new defs.Capped_Cylinder(20, 10),
+      plate: new defs.Capped_Cylinder(50, 50),
       cherry: new defs.Subdivision_Sphere(4),
       strawberry: new defs.Rounded_Closed_Cone(20,20), // Corrected parameters
       cake: new defs.Capped_Cylinder(50, 50), // Added second parameter for slices
@@ -53,6 +54,12 @@ export class Elements extends Scene {
         diffusivity: 0.5,
         specularity: 1,
         color: hex_color("#c8c8c8"),
+      }),
+
+      plate: new Material(new defs.Phong_Shader(), {
+        ambient: 0.5,
+        diffusivity: 0.7,
+        color: hex_color("#D3D3D3"),
       }),
 
       cherry: new Material(new defs.Phong_Shader(), {
@@ -97,8 +104,10 @@ export class Elements extends Scene {
     this.draw_cherry = false;
     this.draw_strawberry = false;
 
-    // Baking
+    // Baking Time
     this.total_baking = 0;
+    this.baking_done = false;
+    this.baking_start_time = null;
   }
 }
 
@@ -157,6 +166,7 @@ export class Assignment2 extends Base_Scene {
     this.draw_strawberry = false;
   }
 
+  //Changes the flavors of the cake
   set_colors(color = "w") {
     if (color == "r"){
       this.layer_color = hex_color("#9c0000")
@@ -278,6 +288,11 @@ export class Assignment2 extends Base_Scene {
         Mat4.translation(0, this.layer_height, 0),
       );
     }
+
+    // This will record the start time of the baking for the cake
+    if (this.elements.baking_start_time === null) {
+      this.elements.baking_start_time = program_state.animation_time;
+    }
   }
 
   // draw_cake(context, program_state, model_transform) {
@@ -298,7 +313,7 @@ export class Assignment2 extends Base_Scene {
     if (this.draw_cherry) {
       const cherry_transform = model_transform
         .times(
-          Mat4.translation(0, this.layer_height * this.layer_count + 0.5, 0),
+          Mat4.translation(-5, this.layer_height * this.layer_count + 6.5, 4),
         )
         .times(Mat4.scale(0.5, 0.5, 0.5));
       this.elements.shapes.cherry.draw(
@@ -325,31 +340,53 @@ export class Assignment2 extends Base_Scene {
     }
   }
 
+  remove_coals(model_transform) {
+    const new_model_transform = model_transform.times(Mat4.translation(0, -1000, 0));
+    return new_model_transform;
+  }
+
+  draw_plate(context, program_state, model_transform) {
+    let plate_transform = model_transform.times(Mat4.translation(0, 2, 0)).times(Mat4.scale(5, 0.2, 5));
+
+    this.elements.shapes.plate.draw(context, program_state, plate_transform, this.elements.materials.plate);
+  }
+
   display(context, program_state) {
     super.display(context, program_state);
     let model_transform = Mat4.identity();
 
-    this.draw_oven(context, program_state, model_transform);
-    //this.draw_cake(context, program_state, model_transform);
     this.draw_toppings(context, program_state, model_transform);
-    this.draw_coal(
-      context,
-      program_state,
-      model_transform.times(Mat4.translation(-4.5, 15, 5)),
-    );
-    this.draw_coal(
-      context,
-      program_state,
-      model_transform.times(Mat4.translation(-4.5, 4, 5)),
-    );
 
     this.draw_cake(context, program_state, model_transform);
 
-    this.draw_ovenrack(
-      context,
-      program_state,
-      model_transform.times(Mat4.translation(-20, 4, 4)),
-    );
+    //Time for baking is set to 5 seconds
+    if (this.elements.baking_start_time !== null) {
+        const total_time = (program_state.animation_time - this.elements.baking_start_time) / 1000;
+        if (total_time > 5) {
+          this.elements.baking_done = true;
+        }
+    }
+
+    if (this.elements.baking_done) {
+      model_transform = this.remove_coals(model_transform);
+      program_state.set_camera(Mat4.look_at(vec3(-5, 15, 18), vec3(-5, 6, 4), vec3(0, 1, 0)));
+
+      //Draws the plate
+      this.draw_plate(context, program_state, Mat4.identity().times(Mat4.translation(0, 2, 0)).times(Mat4.scale(5, 0.2, 5)));
+    }
+
+    if (!this.elements.baking_done) {
+      this.draw_oven(context, program_state, model_transform);
+      this.draw_coal(context, program_state, model_transform.times(Mat4.translation(-4.5, 15, 5)));
+      this.draw_coal(context, program_state, model_transform.times(Mat4.translation(-4.5, 4, 5)));
+      this.draw_ovenrack(
+          context,
+          program_state,
+          model_transform.times(Mat4.translation(-20, 4, 4)),
+      );
+
+    }
+
   }
 }
 
