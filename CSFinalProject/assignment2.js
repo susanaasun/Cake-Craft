@@ -1,20 +1,7 @@
 import { defs, tiny } from "./examples/common.js";
 
 const {
-  Vector,
-  Vector3,
-  vec,
-  vec3,
-  vec4,
-  color,
-  hex_color,
-  Shader,
-  Matrix,
-  Mat4,
-  Light,
-  Shape,
-  Material,
-  Scene,
+  Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
 } = tiny;
 
 export class Elements extends Scene {
@@ -23,29 +10,36 @@ export class Elements extends Scene {
 
     this.shapes = {
       coal: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(
-        2,
+          2,
       ),
-
-      ovenrack: new Cube(),
+      oven: new Cube(),
+      ovenrack: new defs.Capped_Cylinder(20, 10),
       cherry: new defs.Subdivision_Sphere(4),
-      strawberry: new defs.Rounded_Closed_Cone(3),
-      cake: new defs.Capped_Cylinder(20),
-      candle: new defs.Capped_Cylinder(20),
-      candleflame: new Cube_Triangle_Strip(),
+      strawberry: new defs.Rounded_Closed_Cone(4, 10), // Corrected parameters
+      cake: new defs.Capped_Cylinder(20, 10), // Added second parameter for slices
+      candle: new defs.Capped_Cylinder(20, 10), // Added second parameter for slices
+      flame: new defs.Rounded_Closed_Cone(4, 10),
     };
 
     this.materials = {
       coal: new Material(new defs.Phong_Shader(), {
         ambient: 0,
         diffusivity: 1,
-        specularity: 0,
-        color: hex_color("#FFB852"),
+        color: hex_color("#ff8037"),
       }),
 
       oven: new Material(new defs.Phong_Shader(), {
-        ambient: 0.4,
-        diffusivity: 0.2,
+        ambient: 0.2,
+        diffusivity: 0.5,
+        specularity: 1,
         color: hex_color("#5E5E5E"),
+      }),
+
+      ovenrack: new Material(new defs.Phong_Shader(), {
+        ambient: 1,
+        diffusivity: 0.5,
+        specularity: 1,
+        color: hex_color("#c8c8c8"),
       }),
 
       cherry: new Material(new defs.Phong_Shader(), {
@@ -71,34 +65,34 @@ export class Elements extends Scene {
         diffusivity: 1,
         color: hex_color("#A4D6E9"),
       }),
+
+      flame: new Material(new defs.Phong_Shader(), {
+        ambient: 0,
+        diffusivity: 1,
+        color: hex_color("#ff5b47"),
+      }),
     };
 
-    //Cake Parameters
+    // Cake Parameters
     this.layer_height = 1;
     this.layer_width = 3;
     this.layer_depth = 3;
     this.layer_color = hex_color("#faf3eb");
     this.layer_count = 5;
 
-    //Toppings
+    // Toppings
     this.draw_cherry = false;
     this.draw_strawberry = false;
 
-    //Baking
+    // Baking
     this.total_baking = 0;
   }
 }
 
 class Base_Scene extends Scene {
-  /**
-   *  **Base_scene** is a Scene that can be added to any display canvas.
-   *  Setup the shapes, materials, camera, and lighting here.
-   */
   constructor() {
-    // constructor(): Scenes begin by populating initial values like the Shapes and Materials they'll need.
     super();
     this.hover = this.swarm = false;
-    // At the beginning of our program, load one of each of these shape definitions onto the GPU.
 
     // *** Materials
     this.materials = {
@@ -108,139 +102,212 @@ class Base_Scene extends Scene {
         color: hex_color("#ffffff"),
       }),
     };
+
     // The white material and basic shader are used for drawing the outline.
     this.white = new Material(new defs.Basic_Shader());
   }
 
   display(context, program_state) {
-    // display():  Called once per frame of animation. Here, the base class's display only does
-    // some initial setup.
-
-    // Setup -- This part sets up the scene's overall camera matrix, projection matrix, and lights:
     if (!context.scratchpad.controls) {
       this.children.push(
-        (context.scratchpad.controls = new defs.Movement_Controls()),
+          (context.scratchpad.controls = new defs.Movement_Controls()),
       );
-      // Define the global camera and projection matrices, which are stored in program_state.
       program_state.set_camera(Mat4.translation(5, -10, -30));
     }
     program_state.projection_transform = Mat4.perspective(
-      Math.PI / 4,
-      context.width / context.height,
-      1,
-      100,
+        Math.PI / 4,
+        context.width / context.height,
+        1,
+        100,
     );
 
-    // *** Lights: *** Values of vector or point lights.
-    const light_position = vec4(0, 5, 5, 1);
-    program_state.lights = [new Light(light_position, color(1, 1, 1, 1), 1000)];
-
-    super.display(context, program_state);
-    let model_transform = Mat4.identity();
-
-    const coal_rows = 5;
-    const coal_cols = 6;
-
-    for (let i = 0; i < coal_rows; i++) {
-      for (let j = 0; j < coal_cols; j++) {
-        let coal_transform = model_transform.times(Mat4.translation(j, i, 0));
-
-        this.elements.shapes.coal.draw(
-          context,
-          program_state,
-          coal_transform,
-          this.elements.materials.coal,
-        );
-      }
-    }
+    program_state.lights = [
+        new Light(vec4(0, 5, 5, 1), color(1, 1, 1, 1), 1000),
+        new Light(vec4(5, 5, -10, 1), color(1, 1, 1, 1), 6000)
+    ];
   }
 }
 
 export class Assignment2 extends Base_Scene {
-  /**
-   * This Scene object can be added to any display canvas.
-   * We isolate that code so it can be experimented with on its own.
-   * This gives you a very small code sandbox for editing a simple scene, and for
-   * experimenting with matrix transformations.
-   */
+  constructor() {
+    super();
+    this.elements = new Elements();
+
+    this.layer_color = hex_color("#faf3eb");
+    this.layer_count = 5;
+    this.layer_height = 1;
+    this.layer_radius = 3;
+    this.total_baking = 0;
+    this.draw_cherry = false;
+    this.draw_strawberry = false;
+  }
+
   set_colors() {
-    // TODO:  Create a class member variable to store your cube's colors.
-    // Hint:  You might need to create a member variable at somewhere to store the colors, using `this`.
-    // Hint2: You can consider add a constructor for class Assignment2, or add member variables in Base_Scene's constructor.
+    this.layer_color = hex_color(
+        "#" + Math.floor(Math.random() * 16777215).toString(16),
+    );
   }
 
   make_control_panel() {
-    // Changes the color of the cake
-    this.key_triggered_button("Change Cake Color", ["c"], this.change_color());
-
-    //Increase the layers of the cake by 1
+    this.key_triggered_button("Change Cake Color", ["c"], () =>
+        this.set_colors(),
+    );
     this.key_triggered_button("Increase Cake Layers", ["i"], () =>
-      this.change_layer_count(1),
+        this.change_layer_count(1),
     );
-
-    //Decrease the layers of the cake by 1
-    this.key_triggered_button("Decrease Cake Layer", ["d"], () =>
-      this.change_layer_count(-1),
+    this.key_triggered_button("Decrease Cake Layers", ["d"], () =>
+        this.change_layer_count(-1),
     );
-
-    //Add the topings here
     this.key_triggered_button("Cherry", ["p"], () => this.place_cherry());
-
-    // Add a button for controlling the scene.
+    this.key_triggered_button("Strawberry", ["s"], () =>
+        this.place_strawberry(),
+    );
     this.key_triggered_button("Outline", ["o"], () => {
-      // TODO:  Requirement 5b:  Set a flag here that will toggle your outline on and off
+      // Toggle outline
     });
     this.key_triggered_button("Sit still", ["m"], () => {
-      // TODO:  Requirement 3d:  Set a flag here that will toggle your swaying motion on and off.
+      // Toggle swaying motion
     });
   }
 
-  change_color() {
-    //this.layer
+  change_layer_count(change) {
+    this.layer_count = Math.max(1, this.layer_count + change);
   }
 
   place_cherry() {
     this.draw_cherry = true;
+    this.draw_strawberry = false;
   }
 
   place_strawberry() {
+    this.draw_cherry = false;
     this.draw_strawberry = true;
   }
 
-  draw_cake(context, program_state, model_transform, color, index) {
-    let Tr = Mat4.translation(0, index, 0);
-    model_transform = model_transform.times(Tr);
-    this.shapes.cake.draw(
-      context,
-      program_state,
-      model_transform,
-      this.materials.cake,
-    );
+  draw_oven(context, program_state, model_transform) {
+    let oven_transform = model_transform
+        .times(Mat4.translation(-5, 9, 6))
+        .times(Mat4.scale(10, 7, 9));
 
-    return model_transform;
+    this.elements.shapes.oven.draw(
+        context,
+        program_state,
+        oven_transform,
+        this.elements.materials.oven,
+    );
   }
 
-  draw_toppings(context, program_state) {
-    let model_transform = Mat4.identity();
-    let topping_shape, topping_material;
+  draw_ovenrack(context, program_state, model_transform) {
+    const num_bars = 9;
+    const bar_spacing = 7;
+    for (let i = 0; i < num_bars; i++) {
+      let rack_transform = model_transform
+          .times(Mat4.translation(2*i + bar_spacing, 1, 1))
+          .times(Mat4.scale(0.2, 0.2, 11))
 
-    if (this.draw_cherry) {
-      topping_shape = this.shapes.cherry;
-      topping_material = this.materials.cherry;
-
-      for (let i = 0; i < layer_count; i++) {
-        topping_shape.draw(
+      this.elements.shapes.ovenrack.draw(
           context,
           program_state,
-          model_transform.times(
-            Mat4.translation(0, (i + 0.5) * this.layer_height, 0),
-          ),
-          topping_material,
+          rack_transform,
+          this.elements.materials.ovenrack,
+      )
+    }
+  }
+
+  draw_coal(context, program_state, model_transform) {
+    const coal_rows = 11;
+    const coal_cols = 19;
+    const t = program_state.animation_time / 1000;
+    var colorVal = (1 + Math.sin(2 * Math.PI/10 * t)) / 2;
+    var coalColor = color(1, colorVal-0.4, 0, Math.max(colorVal, 0.7));
+    for (let i = 0; i < coal_rows; i++) {
+      for (let j = 0; j < coal_cols; j++) {
+        let coal_transform = model_transform
+            .times(Mat4.translation(j - coal_cols / 2, -0.5, i - coal_rows / 2))
+            .times(Mat4.scale(0.7, 0.7, 0.7));
+        this.elements.shapes.coal.draw(
+            context,
+            program_state,
+            coal_transform,
+            this.elements.materials.coal.override({color: coalColor}),
         );
       }
-    } else if (this.draw_strawberry) {
-      topping_shape = this.shapes.strawberry;
-      topping_material = this.materials.strawberry;
     }
+  }
+
+  draw_cake(context, program_state, model_transform) {
+    for (let i = 0; i < this.layer_count; i++) {
+      this.elements.shapes.cake.draw(
+          context,
+          program_state,
+          model_transform,
+          this.elements.materials.cake.override({ color: this.layer_color }),
+      );
+      model_transform = model_transform.times(
+          Mat4.translation(0, this.layer_height, 0),
+      );
+    }
+  }
+
+  draw_toppings(context, program_state, model_transform) {
+    if (this.draw_cherry) {
+      const cherry_transform = model_transform
+          .times(
+              Mat4.translation(0, this.layer_height * this.layer_count + 0.5, 0),
+          )
+          .times(Mat4.scale(0.5, 0.5, 0.5));
+      this.elements.shapes.cherry.draw(
+          context,
+          program_state,
+          cherry_transform,
+          this.elements.materials.cherry,
+      );
+    }
+
+    if (this.draw_strawberry) {
+      const strawberry_transform = model_transform
+          .times(
+              Mat4.translation(0, this.layer_height * this.layer_count + 0.5, 0),
+          )
+          .times(Mat4.scale(0.5, 0.5, 0.5));
+      this.elements.shapes.strawberry.draw(
+          context,
+          program_state,
+          strawberry_transform,
+          this.elements.materials.strawberry,
+      );
+    }
+  }
+
+  display(context, program_state) {
+    super.display(context, program_state);
+    let model_transform = Mat4.identity();
+
+    this.draw_oven(context, program_state, model_transform);
+    //this.draw_cake(context, program_state, model_transform);
+    this.draw_toppings(context, program_state, model_transform);
+    this.draw_coal(context, program_state, model_transform.times(Mat4.translation(-4.5,15,5)))
+    this.draw_coal(context, program_state, model_transform.times(Mat4.translation(-4.5,4,5)))
+    this.draw_ovenrack(context, program_state, model_transform.times(Mat4.translation(-20,4,4)));
+  }
+}
+
+class Cube extends Shape {
+  constructor() {
+    super();
+    // Loop 3 times (for each axis), and inside loop twice (for opposing cube sides):
+    this.arrays.position = Vector3.cast(
+        [-1, -1, -1], [1, -1, -1], [-1, -1, 1], [1, -1, 1], [1, 1, -1], [-1, 1, -1], [1, 1, 1], [-1, 1, 1],
+        [-1, -1, -1], [-1, -1, 1], [-1, 1, -1], [-1, 1, 1], [1, -1, 1], [1, -1, -1], [1, 1, 1], [1, 1, -1],
+        [-1, -1, 1], [1, -1, 1], [-1, 1, 1], [1, 1, 1], [1, -1, -1], [-1, -1, -1], [1, 1, -1], [-1, 1, -1]);
+    this.arrays.normal = Vector3.cast(
+        [0, -1, 0], [0, -1, 0], [0, -1, 0], [0, -1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0],
+        [-1, 0, 0], [-1, 0, 0], [-1, 0, 0], [-1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0],
+        [0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, -1], [0, 0, -1], [0, 0, -1], [0, 0, -1]);
+    // Arrange the vertices into a square shape in texture space too:
+    this.indices.push(0, 1, 2, 1, 3, 2, 4, 5, 6, 5, 7, 6, 8, 9, 10, 9, 11, 10, 12, 13,
+        14, 13, 15, 14, 20, 21, 22, 21, 23, 22);
+
+
   }
 }
