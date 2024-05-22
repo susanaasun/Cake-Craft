@@ -114,6 +114,9 @@ export class Elements extends Scene {
     this.total_baking = 0;
     this.baking_done = false;
     this.baking_start_time = null;
+
+    this.raw_batter_color = hex_color("#faf3eb");
+    this.baked_cake_color = hex_color("#8B4513");
   }
 }
 
@@ -193,7 +196,6 @@ export class Assignment2 extends Base_Scene {
   }
 
   make_control_panel() {
-
     if (this.elements.baking_done == false) {
       this.key_triggered_button("Red Velvet", ["r"], () => {
         if (!this.elements.baking_done) {
