@@ -59,7 +59,7 @@ export class Elements extends Scene {
       plate: new Material(new defs.Phong_Shader(), {
         ambient: 0.5,
         diffusivity: 0.7,
-        color: hex_color("#D3D3D3"),
+        color: hex_color("#FFC0CB"),
       }),
 
       cherry: new Material(new defs.Phong_Shader(), {
@@ -98,7 +98,7 @@ export class Elements extends Scene {
     this.layer_width = 3;
     this.layer_depth = 3;
     this.layer_color = hex_color("#faf3eb");
-    this.layer_count = 5;
+    this.layer_count = 1;
 
     // Toppings
     this.draw_cherry = false;
@@ -158,7 +158,7 @@ export class Assignment2 extends Base_Scene {
     this.elements = new Elements();
 
     this.layer_color = hex_color("#faf3eb");
-    this.layer_count = 5;
+    this.layer_count = 3;
     this.layer_height = 1;
     this.layer_radius = 3;
     this.total_baking = 0;
@@ -207,7 +207,7 @@ export class Assignment2 extends Base_Scene {
   }
 
   change_layer_count(change) {
-    this.layer_count = Math.max(1, this.layer_count + change);
+      this.layer_count = Math.max(1, this.layer_count + change);
   }
 
   place_cherry() {
@@ -272,9 +272,9 @@ export class Assignment2 extends Base_Scene {
   }
 
   draw_cake(context, program_state, model_transform) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < this.layer_count; i++) {
       let cake_transform = model_transform
-        .times(Mat4.translation(-5, 6 + i, 4)) 
+        .times(Mat4.translation(-5, 6 + i, 4))
         .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
         .times(Mat4.scale(5 - i, 5 + -i, 2));
 
@@ -364,6 +364,8 @@ export class Assignment2 extends Base_Scene {
         const total_time = (program_state.animation_time - this.elements.baking_start_time) / 1000;
         if (total_time > 5) {
           this.elements.baking_done = true;
+
+          //this.layer_count = 1;
         }
     }
 
@@ -371,6 +373,7 @@ export class Assignment2 extends Base_Scene {
       model_transform = this.remove_coals(model_transform);
       program_state.set_camera(Mat4.look_at(vec3(-5, 15, 18), vec3(-5, 6, 4), vec3(0, 1, 0)));
 
+      //this.layer_count = 1;
       //Draws the plate
       this.draw_plate(context, program_state, Mat4.identity().times(Mat4.translation(0, 2, 0)).times(Mat4.scale(5, 0.2, 5)));
     }
