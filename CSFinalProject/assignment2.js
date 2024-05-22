@@ -28,8 +28,9 @@ export class Elements extends Scene {
       oven: new Cube(),
       ovenrack: new defs.Capped_Cylinder(20, 10),
       plate: new defs.Capped_Cylinder(50, 50),
+      pan: new defs.Cylindrical_Tube(50, 100),
       cherry: new defs.Subdivision_Sphere(4),
-      strawberry: new defs.Rounded_Closed_Cone(20,20), // Corrected parameters
+      strawberry: new defs.Rounded_Closed_Cone(20, 20), // Corrected parameters
       cake: new defs.Capped_Cylinder(50, 50), // Added second parameter for slices
       candle: new defs.Capped_Cylinder(20, 10), // Added second parameter for slices
       flame: new defs.Rounded_Closed_Cone(4, 10),
@@ -80,6 +81,11 @@ export class Elements extends Scene {
         color: hex_color("#faf3eb"),
       }),
 
+      pan: new Material(new defs.Phong_Shader(), {
+        ambient: 0.4,
+        diffusivity: 1,
+        color: hex_color("#808080"),
+      }),
       candle: new Material(new defs.Phong_Shader(), {
         ambient: 0.2,
         diffusivity: 1,
@@ -144,9 +150,9 @@ class Base_Scene extends Scene {
     );
 
     program_state.lights = [
-      new Light(vec4(0, 5, 5, 1), color(1, 1, 1, 1), 1000),
-      new Light(vec4(0, 5, 10, 1), color(1, 1, 1, 1), 6000),
-      // new Light(vec4(5, 5, -10, 1), color(1, 1, 1, 1), 6000),
+      new Light(vec4(0, 10, 5, 1), color(1, 1, 1, 1), 500),
+      new Light(vec4(0, 10, 15, 1), color(1, 1, 1, 1), 6000),
+      new Light(vec4(4, 4, -10, 1), color(1, 1, 1, 1), 10000),
       new Light(vec4(0, 0, 0, 1), (1, 1, 1, 1), 1000),
     ];
   }
@@ -168,26 +174,19 @@ export class Assignment2 extends Base_Scene {
 
   //Changes the flavors of the cake
   set_colors(color = "w") {
-    if (color == "r"){
-      this.layer_color = hex_color("#9c0000")
-    } else if (color == "c"){
-      this.layer_color = hex_color("#352728")
-    }else{
-      this.layer_color = hex_color("#faf3eb")
+    if (color == "r") {
+      this.layer_color = hex_color("#9c0000");
+    } else if (color == "c") {
+      this.layer_color = hex_color("#352728");
+    } else {
+      this.layer_color = hex_color("#faf3eb");
     }
-    
   }
 
   make_control_panel() {
-    this.key_triggered_button("Red Velvet", ["r"], () =>
-      this.set_colors("r"),
-    );
-    this.key_triggered_button("Chocolate", ["c"], () =>
-      this.set_colors("c"),
-    );
-    this.key_triggered_button("Vanilla", ["v"], () =>
-      this.set_colors("w"),
-    );
+    this.key_triggered_button("Red Velvet", ["r"], () => this.set_colors("r"));
+    this.key_triggered_button("Chocolate", ["c"], () => this.set_colors("c"));
+    this.key_triggered_button("Vanilla", ["v"], () => this.set_colors("w"));
     this.key_triggered_button("Increase Cake Layers", ["i"], () =>
       this.change_layer_count(1),
     );
@@ -271,10 +270,45 @@ export class Assignment2 extends Base_Scene {
     }
   }
 
+  draw_cake_batter(context, program_state, model_transform) {
+    let batter_transform = model_transform
+      .times(Mat4.translation(-5, 6, 4))
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
+      .times(Mat4.scale(5, 5, 2));
+
+    let pan_transform = model_transform
+      .times(Mat4.translation(-5, 6.5, 4))
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
+      .times(Mat4.scale(5.2, 5.2, 3));
+
+    let pan_bottom_transform = model_transform
+      .times(Mat4.translation(-5, 5, 4))
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
+      .times(Mat4.scale(5.2, 5.2, 0.1));
+
+    this.elements.shapes.cake.draw(
+      context,
+      program_state,
+      batter_transform,
+      this.elements.materials.cake.override({ color: this.layer_color }),
+    );
+    this.elements.shapes.cake.draw(
+      context,
+      program_state,
+      pan_bottom_transform,
+      this.elements.materials.cake.override({ color: hex_color("#808080") }),
+    );
+    this.elements.shapes.pan.draw(
+      context,
+      program_state,
+      pan_transform,
+      this.elements.materials.pan.override({ color: hex_color("#808080") }),
+    );
+  }
   draw_cake(context, program_state, model_transform) {
     for (let i = 0; i < 3; i++) {
       let cake_transform = model_transform
-        .times(Mat4.translation(-5, 6 + i, 4)) 
+        .times(Mat4.translation(-5, 6 + i, 4))
         .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
         .times(Mat4.scale(5 - i, 5 + -i, 2));
 
@@ -341,14 +375,23 @@ export class Assignment2 extends Base_Scene {
   }
 
   remove_coals(model_transform) {
-    const new_model_transform = model_transform.times(Mat4.translation(0, -1000, 0));
+    const new_model_transform = model_transform.times(
+      Mat4.translation(0, -1000, 0),
+    );
     return new_model_transform;
   }
 
   draw_plate(context, program_state, model_transform) {
-    let plate_transform = model_transform.times(Mat4.translation(0, 2, 0)).times(Mat4.scale(5, 0.2, 5));
+    let plate_transform = model_transform
+      .times(Mat4.translation(0, 2, 0))
+      .times(Mat4.scale(5, 0.2, 5));
 
-    this.elements.shapes.plate.draw(context, program_state, plate_transform, this.elements.materials.plate);
+    this.elements.shapes.plate.draw(
+      context,
+      program_state,
+      plate_transform,
+      this.elements.materials.plate,
+    );
   }
 
   display(context, program_state) {
@@ -357,36 +400,54 @@ export class Assignment2 extends Base_Scene {
 
     this.draw_toppings(context, program_state, model_transform);
 
-    this.draw_cake(context, program_state, model_transform);
+    // this.draw_cake(context, program_state, model_transform);
 
     //Time for baking is set to 5 seconds
     if (this.elements.baking_start_time !== null) {
-        const total_time = (program_state.animation_time - this.elements.baking_start_time) / 1000;
-        if (total_time > 5) {
-          this.elements.baking_done = true;
-        }
+      const total_time =
+        (program_state.animation_time - this.elements.baking_start_time) / 1000;
+      if (total_time > 5) {
+        this.elements.baking_done = true;
+      }
     }
 
     if (this.elements.baking_done) {
+      this.draw_cake(context, program_state, model_transform);
       model_transform = this.remove_coals(model_transform);
-      program_state.set_camera(Mat4.look_at(vec3(-5, 15, 18), vec3(-5, 6, 4), vec3(0, 1, 0)));
+      
+      program_state.set_camera(
+        Mat4.look_at(vec3(-5, 15, 18), vec3(-5, 6, 4), vec3(0, 1, 0)),
+      );
 
       //Draws the plate
-      this.draw_plate(context, program_state, Mat4.identity().times(Mat4.translation(0, 2, 0)).times(Mat4.scale(5, 0.2, 5)));
+      this.draw_plate(
+        context,
+        program_state,
+        Mat4.identity()
+          .times(Mat4.translation(0, 2, 0))
+          .times(Mat4.scale(5, 0.2, 5)),
+      );
     }
 
     if (!this.elements.baking_done) {
+      this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
-      this.draw_coal(context, program_state, model_transform.times(Mat4.translation(-4.5, 15, 5)));
-      this.draw_coal(context, program_state, model_transform.times(Mat4.translation(-4.5, 4, 5)));
-      this.draw_ovenrack(
-          context,
-          program_state,
-          model_transform.times(Mat4.translation(-20, 4, 4)),
+      this.draw_coal(
+        context,
+        program_state,
+        model_transform.times(Mat4.translation(-4.5, 15, 5)),
       );
-
+      this.draw_coal(
+        context,
+        program_state,
+        model_transform.times(Mat4.translation(-4.5, 4, 5)),
+      );
+      this.draw_ovenrack(
+        context,
+        program_state,
+        model_transform.times(Mat4.translation(-20, 4, 4)),
+      );
     }
-
   }
 }
 
