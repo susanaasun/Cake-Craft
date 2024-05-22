@@ -173,7 +173,7 @@ export class Assignment2 extends Base_Scene {
   }
 
   //Changes the flavors of the cake
-  set_colors(color = "w") {
+  set_batter_colors(color = "w") {
     if (color == "r") {
       this.layer_color = hex_color("#9c0000");
     } else if (color == "c") {
@@ -182,11 +182,62 @@ export class Assignment2 extends Base_Scene {
       this.layer_color = hex_color("#faf3eb");
     }
   }
+  set_frosting_colors(color = this.layer_color) {
+    if (color == "p") {
+      this.layer_color = hex_color("#FFB6C1");
+    } else if (color == "b") {
+      this.layer_color = hex_color("#ADD8E6");
+    } else {
+      this.layer_color = hex_color("#faf3eb");
+    }
+  }
 
   make_control_panel() {
-    this.key_triggered_button("Red Velvet", ["r"], () => this.set_colors("r"));
-    this.key_triggered_button("Chocolate", ["c"], () => this.set_colors("c"));
-    this.key_triggered_button("Vanilla", ["v"], () => this.set_colors("w"));
+
+    if (this.elements.baking_done == false) {
+      this.key_triggered_button("Red Velvet", ["r"], () => {
+        if (!this.elements.baking_done) {
+          this.set_batter_colors("r");
+        }
+      });
+
+      this.key_triggered_button("Chocolate", ["c"], () => {
+        if (!this.elements.baking_done) {
+          this.set_batter_colors("c");
+        }
+      });
+      this.key_triggered_button("Vanilla", ["v"], () => {
+        if (!this.elements.baking_done) {
+          this.set_batter_colors("w");
+        }
+      });
+      this.key_triggered_button("Pink Frosting", ["p"], () => {
+        if (this.elements.baking_done) {
+          this.set_frosting_colors("p");
+        }
+      });
+      this.key_triggered_button("White Frosting", ["w"], () => {
+        if (this.elements.baking_done) {
+          this.set_frosting_colors("w");
+        }
+      });
+      this.key_triggered_button("Blue Frosting", ["b"], () => {
+        if (this.elements.baking_done) {
+          this.set_frosting_colors("b");
+        }
+      });
+    } else {
+      this.key_triggered_button("Pink Frosting", ["p"], () =>
+        this.set_frosting_colors("p"),
+      );
+      this.key_triggered_button("White Frosting", ["w"], () =>
+        this.set_frosting_colors("w"),
+      );
+      this.key_triggered_button("Blue Frosting", ["b"], () =>
+        this.set_frosting_colors("b"),
+      );
+    }
+
     this.key_triggered_button("Increase Cake Layers", ["i"], () =>
       this.change_layer_count(1),
     );
@@ -271,8 +322,6 @@ export class Assignment2 extends Base_Scene {
   }
 
   draw_cake_batter(context, program_state, model_transform) {
-
-
     if (this.elements.baking_start_time === null) {
       this.elements.baking_start_time = program_state.animation_time;
     }
@@ -310,6 +359,7 @@ export class Assignment2 extends Base_Scene {
       this.elements.materials.pan.override({ color: hex_color("#808080") }),
     );
   }
+
   draw_cake(context, program_state, model_transform) {
     for (let i = 0; i < this.layer_count; i++) {
       let cake_transform = model_transform
@@ -323,6 +373,7 @@ export class Assignment2 extends Base_Scene {
         cake_transform,
         this.elements.materials.cake.override({ color: this.layer_color }),
       );
+
       model_transform = model_transform.times(
         Mat4.translation(0, this.layer_height, 0),
       );
@@ -417,7 +468,6 @@ export class Assignment2 extends Base_Scene {
     }
 
     if (this.elements.baking_done) {
-      this.layer_color = hex_color("#F8EDB1");
       this.draw_cake(context, program_state, model_transform);
       model_transform = this.remove_coals(model_transform);
 
@@ -433,24 +483,23 @@ export class Assignment2 extends Base_Scene {
           .times(Mat4.translation(0, 2, 0))
           .times(Mat4.scale(5, 0.2, 5)),
       );
-    }
-    else {
+    } else {
       this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
       this.draw_coal(
-          context,
-          program_state,
-          model_transform.times(Mat4.translation(-4.5, 15, 5)),
+        context,
+        program_state,
+        model_transform.times(Mat4.translation(-4.5, 15, 5)),
       );
       this.draw_coal(
-          context,
-          program_state,
-          model_transform.times(Mat4.translation(-4.5, 4, 5)),
+        context,
+        program_state,
+        model_transform.times(Mat4.translation(-4.5, 4, 5)),
       );
       this.draw_ovenrack(
-          context,
-          program_state,
-          model_transform.times(Mat4.translation(-20, 4, 4)),
+        context,
+        program_state,
+        model_transform.times(Mat4.translation(-20, 4, 4)),
       );
     }
   }
