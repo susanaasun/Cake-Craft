@@ -263,9 +263,18 @@ export class Assignment2 extends Base_Scene {
     });
   }
 
+  remove_toppings_from_layer(layer) {
+    this.cherries = this.cherries.filter((cherry) => cherry.y < this.layer_height * layer + 6.5);
+    this.strawberries = this.strawberries.filter((strawberry) => strawberry.y < this.layer_height * layer + 6.5);
+  }
+
   change_layer_count(change) {
     if (this.elements.baking_done){
-      this.layer_count = Math.max(1, this.layer_count + change);
+      const new_layer_count = Math.max(1, this.layer_count + change);
+      if (change < 0 && this.layer_count > new_layer_count) {
+        this.remove_toppings_from_layer(this.layer_count);
+      }
+      this.layer_count = new_layer_count;
     }
   }
 
