@@ -374,13 +374,22 @@ export class Assignment2 extends Base_Scene {
     const coal_rows = 11;
     const coal_cols = 19;
     const t = program_state.animation_time / 1000;
-    var colorVal = (1 + Math.sin(((2 * Math.PI) / 10) * t)) / 2;
+    var colorVal = (1 + Math.sin(((0.3 * Math.PI) / 10) * t)) / 2;
     var coalColor = color(1, colorVal - 0.4, 0, Math.max(colorVal, 0.7));
+    //const wiggle_angle= 0.1 * Math.sin(0.01 * Math.PI * t);
     for (let i = 0; i < coal_rows; i++) {
       for (let j = 0; j < coal_cols; j++) {
+        const frequency = 0.5;
+        const amplitude = 0.2;
+        const phase = (i + j) % 3;
+        const wiggle_angle = amplitude * Math.sin(2 * Math.PI * frequency * t + phase);
+
+        // Original transformation with added wobble
         let coal_transform = model_transform
-          .times(Mat4.translation(j - coal_cols / 2, -0.5, i - coal_rows / 2))
-          .times(Mat4.scale(0.7, 0.7, 0.7));
+            .times(Mat4.translation(j - coal_cols / 2, -0.5, i - coal_rows / 2))
+            .times(Mat4.scale(0.7, 0.7, 0.7))
+            .times(Mat4.rotation(wiggle_angle, 0, 1, 0));
+
         this.elements.shapes.coal.draw(
           context,
           program_state,
@@ -518,11 +527,11 @@ export class Assignment2 extends Base_Scene {
 
     // this.draw_cake(context, program_state, model_transform);
 
-    //Time for baking is set to 5 seconds
+    //Time for baking is set to 10 seconds
     if (this.elements.baking_start_time !== null) {
       const total_time =
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
-      if (total_time > 5) {
+      if (total_time > 10) {
         this.elements.baking_done = true;
       }
     }
