@@ -108,7 +108,8 @@ export class Elements extends Scene {
 
     // Toppings
     this.draw_cherry = false;
-    this.draw_strawberry = false;
+    //this.draw_strawberry = false;
+    this.strawberries = [];
 
     // Baking Time
     this.total_baking = 0;
@@ -167,12 +168,14 @@ export class Assignment2 extends Base_Scene {
     this.elements = new Elements();
 
     this.layer_color = hex_color("#faf3eb");
-    this.layer_count = 3;
+    this.layer_count = 1;
     this.layer_height = 1;
     this.layer_radius = 3;
     this.total_baking = 0;
     this.draw_cherry = false;
-    this.draw_strawberry = false;
+    //this.draw_strawberry = false;
+    this.strawberries = [];
+
   }
 
   //Changes the flavors of the cake
@@ -259,7 +262,9 @@ export class Assignment2 extends Base_Scene {
   }
 
   change_layer_count(change) {
-    this.layer_count = Math.max(1, this.layer_count + change);
+    if (this.elements.baking_done){
+      this.layer_count = Math.max(1, this.layer_count + change);
+    }
   }
 
   place_cherry() {
@@ -269,7 +274,32 @@ export class Assignment2 extends Base_Scene {
 
   place_strawberry() {
     this.draw_cherry = false;
-    this.draw_strawberry = true;
+    const min_distance = 2;
+
+    const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
+
+    let new_strawberry_position;
+    let valid_position = false;
+
+    while (!valid_position) {
+      const angle = Math.random() * 2 * Math.PI;
+      const max_radius = 5 - (this.layer_count - 1);
+      const radius = Math.random() * max_radius;
+      const x = radius * Math.cos(angle) - 5;
+      const z = radius * Math.sin(angle) + 4;
+      let y = this.layer_height * this.layer_count + 6.5;
+
+      if (this.layer_count === 2) {
+        y += this.layer_height;
+      } else if (this.layer_count === 3) {
+        y += 2 * this.layer_height;
+      }
+
+      new_strawberry_position = {x, y, z};
+      valid_position = this.strawberries.every(existing => distance(new_strawberry_position, existing) >= min_distance);
+    }
+
+    this.strawberries.push(new_strawberry_position);
   }
 
   draw_oven(context, program_state, model_transform) {
@@ -416,20 +446,15 @@ export class Assignment2 extends Base_Scene {
       );
     }
 
-    if (this.draw_strawberry) {
+    for (let strawberry of this.strawberries) {
       const strawberry_transform = model_transform
-        .times(
-          Mat4.translation(-5, this.layer_height * this.layer_count + 6.5, 4),
-        )
-        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        .times(Mat4.scale(0.5, 0.5, 0.5));
-      this.elements.shapes.strawberry.draw(
-        context,
-        program_state,
-        strawberry_transform,
-        this.elements.materials.strawberry,
-      );
+          .times(Mat4.translation(strawberry.x, strawberry.y, strawberry.z))
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.scale(0.5, 0.5, 0.5));
+
+      this.elements.shapes.strawberry.draw(context, program_state, strawberry_transform, this.elements.materials.strawberry);
     }
+
   }
 
   remove_coals(model_transform) {
@@ -485,6 +510,8 @@ export class Assignment2 extends Base_Scene {
           .times(Mat4.translation(0, 2, 0))
           .times(Mat4.scale(5, 0.2, 5)),
       );
+
+
     } else {
       this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
