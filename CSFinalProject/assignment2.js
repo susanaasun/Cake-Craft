@@ -110,6 +110,7 @@ export class Elements extends Scene {
     this.draw_cherry = false;
     //this.draw_strawberry = false;
     this.strawberries = [];
+    this.cherries = [];
 
     // Baking Time
     this.total_baking = 0;
@@ -175,6 +176,7 @@ export class Assignment2 extends Base_Scene {
     this.draw_cherry = false;
     //this.draw_strawberry = false;
     this.strawberries = [];
+    this.cherries = [];
 
   }
 
@@ -268,12 +270,39 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_cherry() {
-    this.draw_cherry = true;
-    this.draw_strawberry = false;
+    // this.draw_cherry = true;
+    // this.draw_strawberry = false;
+    const min_distance = 2;
+
+    const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
+
+    let new_cherry_position;
+    let valid_position = false;
+
+    while (!valid_position) {
+      const angle = Math.random() * 2 * Math.PI;
+      const max_radius = 5 - (this.layer_count - 1);
+      const radius = Math.random() * max_radius;
+      const x = radius * Math.cos(angle) - 5;
+      const z = radius * Math.sin(angle) + 4;
+      let y = this.layer_height * this.layer_count + 6.5;
+
+      if (this.layer_count === 2) {
+        y += this.layer_height;
+      } else if (this.layer_count === 3) {
+        y += 2 * this.layer_height;
+      }
+
+      new_cherry_position = {x, y, z};
+      valid_position = [...this.cherries, ...this.strawberries].every(existing => distance(new_cherry_position, existing) >= min_distance);
+    }
+
+    this.cherries.push(new_cherry_position);
+
   }
 
   place_strawberry() {
-    this.draw_cherry = false;
+    //this.draw_cherry = false;
     const min_distance = 2;
 
     const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
@@ -296,7 +325,7 @@ export class Assignment2 extends Base_Scene {
       }
 
       new_strawberry_position = {x, y, z};
-      valid_position = this.strawberries.every(existing => distance(new_strawberry_position, existing) >= min_distance);
+      valid_position = [...this.strawberries, ...this.cherries].every(existing => distance( new_strawberry_position, existing) >= min_distance);
     }
 
     this.strawberries.push(new_strawberry_position);
@@ -432,18 +461,13 @@ export class Assignment2 extends Base_Scene {
   // }
 
   draw_toppings(context, program_state, model_transform) {
-    if (this.draw_cherry) {
+    for (let cherry of this.cherries) {
       const cherry_transform = model_transform
-        .times(
-          Mat4.translation(-5, this.layer_height * this.layer_count + 6.5, 4),
-        )
-        .times(Mat4.scale(0.5, 0.5, 0.5));
-      this.elements.shapes.cherry.draw(
-        context,
-        program_state,
-        cherry_transform,
-        this.elements.materials.cherry,
-      );
+          .times(Mat4.translation(cherry.x, cherry.y, cherry.z))
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.scale(0.5, 0.5, 0.5));
+
+      this.elements.shapes.cherry.draw(context, program_state, cherry_transform, this.elements.materials.cherry);
     }
 
     for (let strawberry of this.strawberries) {
