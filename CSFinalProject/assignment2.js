@@ -384,7 +384,6 @@ export class Assignment2 extends Base_Scene {
         const phase = (i + j) % 3;
         const wiggle_angle = amplitude * Math.sin(2 * Math.PI * frequency * t + phase);
 
-        // Original transformation with added wobble
         let coal_transform = model_transform
             .times(Mat4.translation(j - coal_cols / 2, -0.5, i - coal_rows / 2))
             .times(Mat4.scale(0.7, 0.7, 0.7))
@@ -407,7 +406,13 @@ export class Assignment2 extends Base_Scene {
     let batter_transform = model_transform
       .times(Mat4.translation(-5, 6, 4))
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
-      .times(Mat4.scale(5, 5, 2));
+
+    const t = program_state.animation_time / 1000;
+    const duration = 10;
+    const max_height = 5;
+    const batter_height = Math.min(max_height * (t / duration), max_height);
+    let batter_rise_transform = batter_transform
+        .times(Mat4.scale(5, batter_height, 2))
 
     let pan_transform = model_transform
       .times(Mat4.translation(-5, 6.5, 4))
@@ -422,7 +427,7 @@ export class Assignment2 extends Base_Scene {
     this.elements.shapes.cake.draw(
       context,
       program_state,
-      batter_transform,
+      batter_rise_transform,
       this.elements.materials.cake.override({ color: this.layer_color }),
     );
     this.elements.shapes.cake.draw(
