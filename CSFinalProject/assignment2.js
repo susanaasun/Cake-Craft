@@ -99,6 +99,7 @@ export class Elements extends Scene {
       }),
     };
 
+
     // Cake Parameters
     this.layer_height = 1;
     this.layer_width = 3;
@@ -116,9 +117,21 @@ export class Elements extends Scene {
     this.total_baking = 0;
     this.baking_done = false;
     this.baking_start_time = null;
+    this.baking_end_time = null;
 
     this.raw_batter_color = hex_color("#faf3eb");
     this.baked_cake_color = hex_color("#8B4513");
+
+    //Used for transitioning from the batter scene to the oven scene
+    this.red_velvet_clicked = false;
+    this.red_velvet_displayed = false;
+
+    this.vanilla_clicked = false;
+    this.vanilla_displayed = false;
+
+    this.chocolate_clicked = false;
+    this.chocolate_displayed = false;
+
   }
 }
 
@@ -145,7 +158,7 @@ class Base_Scene extends Scene {
       this.children.push(
         (context.scratchpad.controls = new defs.Movement_Controls()),
       );
-      program_state.set_camera(Mat4.translation(5, -12, -32));
+      program_state.set_camera(Mat4.translation(50, 12, 21));
     }
     program_state.projection_transform = Mat4.perspective(
       Math.PI / 4,
@@ -204,6 +217,8 @@ export class Assignment2 extends Base_Scene {
       this.key_triggered_button("Red Velvet", ["r"], ()=> {
         if (!this.elements.baking_done) {
           this.set_batter_colors("r");
+          this.elements.red_velvet_clicked = true;
+          this.elements.baking_start_time = null;
         }
       }, "#9c0000"
       );
@@ -211,12 +226,16 @@ export class Assignment2 extends Base_Scene {
       this.key_triggered_button("Chocolate", ["c"], () => {
         if (!this.elements.baking_done) {
           this.set_batter_colors("c");
+          this.elements.chocolate_clicked = true;
+          this.elements.baking_start_time = null;
         }
       }, "#684836"
       );
       this.key_triggered_button("Vanilla", ["v"], () => {
         if (!this.elements.baking_done) {
           this.set_batter_colors("w");
+          this.elements.vanilla_clicked = true;
+          this.elements.baking_start_time = null;
         }
       },"#C6B296"
       );
@@ -278,8 +297,6 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_cherry() {
-    // this.draw_cherry = true;
-    // this.draw_strawberry = false;
     const min_distance = 2;
 
     const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
@@ -310,7 +327,6 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_strawberry() {
-    //this.draw_cherry = false;
     const min_distance = 2;
 
     const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
@@ -399,9 +415,9 @@ export class Assignment2 extends Base_Scene {
   }
 
   draw_cake_batter(context, program_state, model_transform) {
-    if (this.elements.baking_start_time === null) {
-      this.elements.baking_start_time = program_state.animation_time;
-    }
+    // if (this.elements.baking_start_time === null) {
+    //   this.elements.baking_start_time = program_state.animation_time;
+    // }
     let batter_transform = model_transform
       .times(Mat4.translation(-5, 6, 4))
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
@@ -523,13 +539,62 @@ export class Assignment2 extends Base_Scene {
     );
   }
 
+  draw_pan(context, program_state, model_transform) {
+    const camera_position = program_state.camera_inverse[0][3];
+
+    if (camera_position !== 5) {
+      let batter_transform = model_transform
+          .times(Mat4.translation(-50, -12.2, -40))
+          .times(Mat4.rotation(Math.PI / 1.6, 1, 0, 0))
+          .times(Mat4.scale(5, 5, 2));
+
+      let pan_transform = model_transform
+          .times(Mat4.translation(-50, -12.2, -40))
+          .times(Mat4.rotation(Math.PI / 1.60, 1, 0, 0))
+          .times(Mat4.scale(5.2, 5.2, 3));
+
+      let pan_bottom_transform = model_transform
+          .times(Mat4.translation(-50, -13.6, -40))
+          .times(Mat4.rotation(Math.PI / 1.60, 1, 0, 0))
+          .times(Mat4.scale(5.2, 5.2, 0));
+
+      //Batter
+      this.elements.shapes.cake.draw(
+          context,
+          program_state,
+          batter_transform,
+          this.elements.materials.cake.override({color: this.layer_color}),
+      );
+
+      //Bottom of pan
+      this.elements.shapes.cake.draw(
+          context,
+          program_state,
+          pan_bottom_transform,
+          this.elements.materials.cake.override({color: hex_color("#808080")}),
+      );
+
+      //Side of pan
+      this.elements.shapes.pan.draw(
+          context,
+          program_state,
+          pan_transform,
+          this.elements.materials.pan.override({color: hex_color("#808080")}),
+      );
+    }
+  }
+
+
   display(context, program_state) {
     super.display(context, program_state);
     let model_transform = Mat4.identity();
 
     this.draw_toppings(context, program_state, model_transform);
+    this.draw_pan(context, program_state, model_transform);
 
-    // this.draw_cake(context, program_state, model_transform);
+    if (this.elements.baking_start_time === null && (this.elements.red_velvet_clicked || this.elements.chocolate_clicked || this.elements.vanilla_clicked)) {
+      this.elements.baking_start_time = program_state.animation_time;
+    }
 
     //Time for baking is set to 10 seconds
     if (this.elements.baking_start_time !== null) {
@@ -537,6 +602,7 @@ export class Assignment2 extends Base_Scene {
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
       if (total_time > 10) {
         this.elements.baking_done = true;
+        this.elements.baking_end_time = program_state.animation_time;
       }
     }
 
@@ -558,6 +624,7 @@ export class Assignment2 extends Base_Scene {
       );
 
 
+
     } else {
       this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
@@ -577,6 +644,38 @@ export class Assignment2 extends Base_Scene {
         model_transform.times(Mat4.translation(-20, 4, 4)),
       );
     }
+
+    if (this.elements.red_velvet_clicked) {
+      if (!this.red_velvet_displayed) {
+        this.red_velvet_displayed = true;
+        setTimeout(() => {
+          program_state.set_camera(Mat4.translation(5, -12, -32));
+          this.elements.red_velvet_clicked = false;
+        }, 1000);
+      }
+    }
+
+    if (this.elements.chocolate_clicked) {
+      if (!this.chocolate_displayed) {
+        this.chocolate_displayed = true;
+        setTimeout(() => {
+          program_state.set_camera(Mat4.translation(5, -12, -32));
+          this.elements.chocolate_clicked = false;
+        }, 1000);
+      }
+    }
+
+    if (this.elements.vanilla_clicked) {
+      if (!this.vanilla_displayed) {
+        this.vanilla_displayed = true;
+        setTimeout(() => {
+          program_state.set_camera(Mat4.translation(5, -12, -32));
+          this.elements.vanilla_clicked = false;
+        }, 1000);
+      }
+    }
+
+
   }
 }
 
