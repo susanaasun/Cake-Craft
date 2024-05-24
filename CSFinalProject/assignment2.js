@@ -184,9 +184,9 @@ export class Assignment2 extends Base_Scene {
     if (color == "r") {
       this.layer_color = hex_color("#9c0000");
     } else if (color == "c") {
-      this.layer_color = hex_color("#352728");
+      this.layer_color = hex_color("#684836");
     } else {
-      this.layer_color = hex_color("#faf3eb");
+      this.layer_color = hex_color("#DDCBB9FF");
     }
   }
   set_frosting_colors(color = this.layer_color) {
@@ -201,37 +201,43 @@ export class Assignment2 extends Base_Scene {
 
   make_control_panel() {
     if (this.elements.baking_done == false) {
-      this.key_triggered_button("Red Velvet", ["r"], () => {
+      this.key_triggered_button("Red Velvet", ["r"], ()=> {
         if (!this.elements.baking_done) {
           this.set_batter_colors("r");
         }
-      });
+      }, "#9c0000"
+      );
 
       this.key_triggered_button("Chocolate", ["c"], () => {
         if (!this.elements.baking_done) {
           this.set_batter_colors("c");
         }
-      });
+      }, "#684836"
+      );
       this.key_triggered_button("Vanilla", ["v"], () => {
         if (!this.elements.baking_done) {
           this.set_batter_colors("w");
         }
-      });
+      },"#C6B296"
+      );
       this.key_triggered_button("Pink Frosting", ["p"], () => {
         if (this.elements.baking_done) {
           this.set_frosting_colors("p");
         }
-      });
+      }, "#FFB6C1"
+      );
       this.key_triggered_button("White Frosting", ["w"], () => {
         if (this.elements.baking_done) {
           this.set_frosting_colors("w");
         }
-      });
+      }, "#B6AC9E"
+      );
       this.key_triggered_button("Blue Frosting", ["b"], () => {
         if (this.elements.baking_done) {
           this.set_frosting_colors("b");
         }
-      });
+      }, "#6099DA"
+      );
     } else {
       this.key_triggered_button("Pink Frosting", ["p"], () =>
         this.set_frosting_colors("p"),
@@ -245,21 +251,15 @@ export class Assignment2 extends Base_Scene {
     }
 
     this.key_triggered_button("Increase Cake Layers", ["i"], () =>
-      this.change_layer_count(1),
+      this.change_layer_count(1), "#529758"
     );
     this.key_triggered_button("Decrease Cake Layers", ["d"], () =>
-      this.change_layer_count(-1),
+      this.change_layer_count(-1), "#B76FCA"
     );
-    this.key_triggered_button("Cherry", ["p"], () => this.place_cherry());
+    this.key_triggered_button("Cherry", ["p"], () => this.place_cherry(), "#F81B36");
     this.key_triggered_button("Strawberry", ["s"], () =>
-      this.place_strawberry(),
+      this.place_strawberry(), "#EF2F86"
     );
-    this.key_triggered_button("Outline", ["o"], () => {
-      // Toggle outline
-    });
-    this.key_triggered_button("Sit still", ["m"], () => {
-      // Toggle swaying motion
-    });
   }
 
   remove_toppings_from_layer(layer) {
