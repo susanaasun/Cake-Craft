@@ -155,10 +155,9 @@ class Base_Scene extends Scene {
     );
 
     program_state.lights = [
-      new Light(vec4(0, 10, 5, 1), color(1, 1, 1, 1), 500),
+      new Light(vec4(5, 5, -10, 1), color(1, 1, 1, 1), 1000),
       new Light(vec4(0, 10, 15, 1), color(1, 1, 1, 1), 6000),
-      new Light(vec4(4, 4, -10, 1), color(1, 1, 1, 1), 10000),
-      new Light(vec4(0, 0, 0, 1), (1, 1, 1, 1), 1000),
+      new Light(vec4(0, 0, 0, 1), color(1, 1, 1, 1), 1000),
     ];
   }
 }
@@ -417,7 +416,7 @@ export class Assignment2 extends Base_Scene {
     let pan_transform = model_transform
       .times(Mat4.translation(-5, 6.5, 4))
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
-      .times(Mat4.scale(5.2, 5.2, 3));
+      .times(Mat4.scale(5.2, 5., 3));
 
     let pan_bottom_transform = model_transform
       .times(Mat4.translation(-5, 5, 4))
