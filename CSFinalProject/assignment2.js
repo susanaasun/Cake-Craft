@@ -30,7 +30,8 @@ export class Elements extends Scene {
       plate: new defs.Capped_Cylinder(50, 50),
       pan: new defs.Cylindrical_Tube(50, 100),
       cherry: new defs.Subdivision_Sphere(4),
-      strawberry: new defs.Rounded_Closed_Cone(20, 20), // Corrected parameters
+      strawberry: new defs.Rounded_Closed_Cone(20, 20),
+      blueberry: new defs.Subdivision_Sphere(4),
       cake: new defs.Capped_Cylinder(50, 50), // Added second parameter for slices
       candle: new defs.Capped_Cylinder(20, 10), // Added second parameter for slices
       flame: new defs.Rounded_Closed_Cone(4, 10),
@@ -75,6 +76,12 @@ export class Elements extends Scene {
         color: hex_color("#C54644"),
       }),
 
+      blueberry: new Material(new defs.Phong_Shader(), {
+        ambient: 0.4,
+        diffusivity: 1,
+        color: hex_color("#4f86f7"),
+      }),
+
       cake: new Material(new defs.Phong_Shader(), {
         ambient: 0.4,
         diffusivity: 1,
@@ -112,6 +119,7 @@ export class Elements extends Scene {
     //this.draw_strawberry = false;
     this.strawberries = [];
     this.cherries = [];
+    this.blueberries = [];
 
     // Baking Time
     this.total_baking = 0;
@@ -189,6 +197,7 @@ export class Assignment2 extends Base_Scene {
     //this.draw_strawberry = false;
     this.strawberries = [];
     this.cherries = [];
+    this.blueberries = [];
 
   }
 
@@ -199,7 +208,7 @@ export class Assignment2 extends Base_Scene {
     } else if (color == "c") {
       this.layer_color = hex_color("#684836");
     } else {
-      this.layer_color = hex_color("#DDCBB9FF");
+      this.layer_color = hex_color("#faf3eb");
     }
   }
   set_frosting_colors(color = this.layer_color) {
@@ -279,11 +288,18 @@ export class Assignment2 extends Base_Scene {
     this.key_triggered_button("Strawberry", ["s"], () =>
       this.place_strawberry(), "#EF2F86"
     );
+
+    this.key_triggered_button("Blueberry", ["t"], () =>
+        this.place_blueberry(), "#4f86f7"
+    );
+
   }
 
   remove_toppings_from_layer(layer) {
     this.cherries = this.cherries.filter((cherry) => cherry.y < this.layer_height * layer + 6.5);
     this.strawberries = this.strawberries.filter((strawberry) => strawberry.y < this.layer_height * layer + 6.5);
+    this.blueberries = this.blueberries.filter((blueberry) => blueberry.y < this.layer_height * layer + 6.5);
+
   }
 
   change_layer_count(change) {
@@ -297,6 +313,10 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_cherry() {
+    const max_cherries = 10;
+
+    if (this.cherries.length >= max_cherries) return;
+
     const min_distance = 2;
 
     const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
@@ -319,7 +339,7 @@ export class Assignment2 extends Base_Scene {
       }
 
       new_cherry_position = {x, y, z};
-      valid_position = [...this.cherries, ...this.strawberries].every(existing => distance(new_cherry_position, existing) >= min_distance);
+      valid_position = [...this.cherries, ...this.strawberries, ...this.blueberries].every(existing => distance(new_cherry_position, existing) >= min_distance);
     }
 
     this.cherries.push(new_cherry_position);
@@ -327,6 +347,10 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_strawberry() {
+    const max_strawberries = 10;
+
+    if (this.strawberries.length >= max_strawberries) return;
+
     const min_distance = 2;
 
     const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
@@ -349,11 +373,45 @@ export class Assignment2 extends Base_Scene {
       }
 
       new_strawberry_position = {x, y, z};
-      valid_position = [...this.strawberries, ...this.cherries].every(existing => distance( new_strawberry_position, existing) >= min_distance);
+      valid_position = [...this.strawberries, ...this.cherries, ...this.blueberries].every(existing => distance( new_strawberry_position, existing) >= min_distance);
     }
 
     this.strawberries.push(new_strawberry_position);
   }
+
+  place_blueberry() {
+    const max_blueberries = 15;
+
+    if (this.blueberries.length >= max_blueberries) return;
+
+    const min_distance = 1.5;
+
+    const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
+
+    let new_blueberry_position;
+    let valid_position = false;
+
+    while (!valid_position) {
+      const angle = Math.random() * 2 * Math.PI;
+      const max_radius = this.layer_radius - (this.layer_count - 1);
+      const radius = Math.random() * max_radius;
+      const x = radius * Math.cos(angle) - 5;
+      const z = radius * Math.sin(angle) + 4;
+      let y = this.layer_height * this.layer_count + 6.5;
+
+      if (this.layer_count === 2) {
+        y += this.layer_height;
+      } else if (this.layer_count === 3) {
+        y += 2 * this.layer_height;
+      }
+
+      new_blueberry_position = {x, y, z};
+      valid_position = [...this.blueberries, ...this.strawberries, ...this.cherries].every(existing => distance( new_blueberry_position, existing) >= min_distance);
+    }
+
+    this.blueberries.push(new_blueberry_position);
+  }
+
 
   draw_oven(context, program_state, model_transform) {
     let oven_transform = model_transform
@@ -515,6 +573,15 @@ export class Assignment2 extends Base_Scene {
           .times(Mat4.scale(0.5, 0.5, 0.5));
 
       this.elements.shapes.strawberry.draw(context, program_state, strawberry_transform, this.elements.materials.strawberry);
+    }
+
+    for (let blueberry of this.blueberries) {
+      const blueberry_transform = model_transform
+          .times(Mat4.translation(blueberry.x, blueberry.y, blueberry.z))
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.scale(0.25, 0.25, 0.25));
+
+      this.elements.shapes.blueberry.draw(context, program_state, blueberry_transform, this.elements.materials.blueberry);
     }
 
   }
