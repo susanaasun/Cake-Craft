@@ -15,7 +15,10 @@ const {
   Shape,
   Material,
   Scene,
+  Texture,
 } = tiny;
+
+const { Axis_Arrows, Textured_Phong } = defs;
 
 export class Elements extends Scene {
   constructor() {
@@ -35,6 +38,8 @@ export class Elements extends Scene {
       cake: new defs.Capped_Cylinder(50, 50), // Added second parameter for slices
       candle: new defs.Capped_Cylinder(20, 10), // Added second parameter for slices
       flame: new defs.Rounded_Closed_Cone(4, 10),
+      table: new defs.Square(),
+      table_back: new defs.Square(),
     };
 
     this.materials = {
@@ -49,6 +54,13 @@ export class Elements extends Scene {
         diffusivity: 0.5,
         specularity: 1,
         color: hex_color("#5E5E5E"),
+      }),
+
+      table: new Material(new Textured_Phong(), {
+        color: hex_color("#000000"),
+        ambient: 1,
+        diffusivity: 0.1,
+        texture: new Texture("assets/marbles.png"),
       }),
 
       ovenrack: new Material(new defs.Phong_Shader(), {
@@ -106,7 +118,6 @@ export class Elements extends Scene {
       }),
     };
 
-
     // Cake Parameters
     this.layer_height = 1;
     this.layer_width = 3;
@@ -139,7 +150,6 @@ export class Elements extends Scene {
 
     this.chocolate_clicked = false;
     this.chocolate_displayed = false;
-
   }
 }
 
@@ -198,7 +208,6 @@ export class Assignment2 extends Base_Scene {
     this.strawberries = [];
     this.cherries = [];
     this.blueberries = [];
-
   }
 
   //Changes the flavors of the cake
@@ -223,48 +232,72 @@ export class Assignment2 extends Base_Scene {
 
   make_control_panel() {
     if (this.elements.baking_done == false) {
-      this.key_triggered_button("Red Velvet", ["r"], ()=> {
-        if (!this.elements.baking_done) {
-          this.set_batter_colors("r");
-          this.elements.red_velvet_clicked = true;
-          this.elements.baking_start_time = null;
-        }
-      }, "#9c0000"
+      this.key_triggered_button(
+        "Red Velvet",
+        ["r"],
+        () => {
+          if (!this.elements.baking_done) {
+            this.set_batter_colors("r");
+            this.elements.red_velvet_clicked = true;
+            this.elements.baking_start_time = null;
+          }
+        },
+        "#9c0000",
       );
 
-      this.key_triggered_button("Chocolate", ["c"], () => {
-        if (!this.elements.baking_done) {
-          this.set_batter_colors("c");
-          this.elements.chocolate_clicked = true;
-          this.elements.baking_start_time = null;
-        }
-      }, "#684836"
+      this.key_triggered_button(
+        "Chocolate",
+        ["c"],
+        () => {
+          if (!this.elements.baking_done) {
+            this.set_batter_colors("c");
+            this.elements.chocolate_clicked = true;
+            this.elements.baking_start_time = null;
+          }
+        },
+        "#684836",
       );
-      this.key_triggered_button("Vanilla", ["v"], () => {
-        if (!this.elements.baking_done) {
-          this.set_batter_colors("w");
-          this.elements.vanilla_clicked = true;
-          this.elements.baking_start_time = null;
-        }
-      },"#C6B296"
+      this.key_triggered_button(
+        "Vanilla",
+        ["v"],
+        () => {
+          if (!this.elements.baking_done) {
+            this.set_batter_colors("w");
+            this.elements.vanilla_clicked = true;
+            this.elements.baking_start_time = null;
+          }
+        },
+        "#C6B296",
       );
-      this.key_triggered_button("Pink Frosting", ["p"], () => {
-        if (this.elements.baking_done) {
-          this.set_frosting_colors("p");
-        }
-      }, "#FFB6C1"
+      this.key_triggered_button(
+        "Pink Frosting",
+        ["p"],
+        () => {
+          if (this.elements.baking_done) {
+            this.set_frosting_colors("p");
+          }
+        },
+        "#FFB6C1",
       );
-      this.key_triggered_button("White Frosting", ["w"], () => {
-        if (this.elements.baking_done) {
-          this.set_frosting_colors("w");
-        }
-      }, "#B6AC9E"
+      this.key_triggered_button(
+        "White Frosting",
+        ["w"],
+        () => {
+          if (this.elements.baking_done) {
+            this.set_frosting_colors("w");
+          }
+        },
+        "#B6AC9E",
       );
-      this.key_triggered_button("Blue Frosting", ["b"], () => {
-        if (this.elements.baking_done) {
-          this.set_frosting_colors("b");
-        }
-      }, "#6099DA"
+      this.key_triggered_button(
+        "Blue Frosting",
+        ["b"],
+        () => {
+          if (this.elements.baking_done) {
+            this.set_frosting_colors("b");
+          }
+        },
+        "#6099DA",
       );
     } else {
       this.key_triggered_button("Pink Frosting", ["p"], () =>
@@ -278,32 +311,53 @@ export class Assignment2 extends Base_Scene {
       );
     }
 
-    this.key_triggered_button("Increase Cake Layers", ["i"], () =>
-      this.change_layer_count(1), "#529758"
+    this.key_triggered_button(
+      "Increase Cake Layers",
+      ["i"],
+      () => this.change_layer_count(1),
+      "#529758",
     );
-    this.key_triggered_button("Decrease Cake Layers", ["d"], () =>
-      this.change_layer_count(-1), "#B76FCA"
+    this.key_triggered_button(
+      "Decrease Cake Layers",
+      ["d"],
+      () => this.change_layer_count(-1),
+      "#B76FCA",
     );
-    this.key_triggered_button("Cherry", ["p"], () => this.place_cherry(), "#F81B36");
-    this.key_triggered_button("Strawberry", ["s"], () =>
-      this.place_strawberry(), "#EF2F86"
+    this.key_triggered_button(
+      "Cherry",
+      ["p"],
+      () => this.place_cherry(),
+      "#F81B36",
+    );
+    this.key_triggered_button(
+      "Strawberry",
+      ["s"],
+      () => this.place_strawberry(),
+      "#EF2F86",
     );
 
-    this.key_triggered_button("Blueberry", ["t"], () =>
-        this.place_blueberry(), "#4f86f7"
+    this.key_triggered_button(
+      "Blueberry",
+      ["t"],
+      () => this.place_blueberry(),
+      "#4f86f7",
     );
-
   }
 
   remove_toppings_from_layer(layer) {
-    this.cherries = this.cherries.filter((cherry) => cherry.y < this.layer_height * layer + 6.5);
-    this.strawberries = this.strawberries.filter((strawberry) => strawberry.y < this.layer_height * layer + 6.5);
-    this.blueberries = this.blueberries.filter((blueberry) => blueberry.y < this.layer_height * layer + 6.5);
-
+    this.cherries = this.cherries.filter(
+      (cherry) => cherry.y < this.layer_height * layer + 6.5,
+    );
+    this.strawberries = this.strawberries.filter(
+      (strawberry) => strawberry.y < this.layer_height * layer + 6.5,
+    );
+    this.blueberries = this.blueberries.filter(
+      (blueberry) => blueberry.y < this.layer_height * layer + 6.5,
+    );
   }
 
   change_layer_count(change) {
-    if (this.elements.baking_done){
+    if (this.elements.baking_done) {
       const new_layer_count = Math.max(1, this.layer_count + change);
       if (change < 0 && this.layer_count > new_layer_count) {
         this.remove_toppings_from_layer(this.layer_count);
@@ -319,7 +373,12 @@ export class Assignment2 extends Base_Scene {
 
     const min_distance = 2;
 
-    const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
+    const distance = (a, b) =>
+      Math.sqrt(
+        Math.pow(a.x - b.x, 2) +
+          Math.pow(a.y - b.y, 2) +
+          Math.pow(a.z - b.z, 2),
+      );
 
     let new_cherry_position;
     let valid_position = false;
@@ -338,12 +397,17 @@ export class Assignment2 extends Base_Scene {
         y += 2 * this.layer_height;
       }
 
-      new_cherry_position = {x, y, z};
-      valid_position = [...this.cherries, ...this.strawberries, ...this.blueberries].every(existing => distance(new_cherry_position, existing) >= min_distance);
+      new_cherry_position = { x, y, z };
+      valid_position = [
+        ...this.cherries,
+        ...this.strawberries,
+        ...this.blueberries,
+      ].every(
+        (existing) => distance(new_cherry_position, existing) >= min_distance,
+      );
     }
 
     this.cherries.push(new_cherry_position);
-
   }
 
   place_strawberry() {
@@ -353,7 +417,12 @@ export class Assignment2 extends Base_Scene {
 
     const min_distance = 2;
 
-    const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
+    const distance = (a, b) =>
+      Math.sqrt(
+        Math.pow(a.x - b.x, 2) +
+          Math.pow(a.y - b.y, 2) +
+          Math.pow(a.z - b.z, 2),
+      );
 
     let new_strawberry_position;
     let valid_position = false;
@@ -372,8 +441,15 @@ export class Assignment2 extends Base_Scene {
         y += 2 * this.layer_height;
       }
 
-      new_strawberry_position = {x, y, z};
-      valid_position = [...this.strawberries, ...this.cherries, ...this.blueberries].every(existing => distance( new_strawberry_position, existing) >= min_distance);
+      new_strawberry_position = { x, y, z };
+      valid_position = [
+        ...this.strawberries,
+        ...this.cherries,
+        ...this.blueberries,
+      ].every(
+        (existing) =>
+          distance(new_strawberry_position, existing) >= min_distance,
+      );
     }
 
     this.strawberries.push(new_strawberry_position);
@@ -386,7 +462,12 @@ export class Assignment2 extends Base_Scene {
 
     const min_distance = 1.5;
 
-    const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
+    const distance = (a, b) =>
+      Math.sqrt(
+        Math.pow(a.x - b.x, 2) +
+          Math.pow(a.y - b.y, 2) +
+          Math.pow(a.z - b.z, 2),
+      );
 
     let new_blueberry_position;
     let valid_position = false;
@@ -405,13 +486,19 @@ export class Assignment2 extends Base_Scene {
         y += 2 * this.layer_height;
       }
 
-      new_blueberry_position = {x, y, z};
-      valid_position = [...this.blueberries, ...this.strawberries, ...this.cherries].every(existing => distance( new_blueberry_position, existing) >= min_distance);
+      new_blueberry_position = { x, y, z };
+      valid_position = [
+        ...this.blueberries,
+        ...this.strawberries,
+        ...this.cherries,
+      ].every(
+        (existing) =>
+          distance(new_blueberry_position, existing) >= min_distance,
+      );
     }
 
     this.blueberries.push(new_blueberry_position);
   }
-
 
   draw_oven(context, program_state, model_transform) {
     let oven_transform = model_transform
@@ -455,12 +542,13 @@ export class Assignment2 extends Base_Scene {
         const frequency = 0.5;
         const amplitude = 0.2;
         const phase = (i + j) % 3;
-        const wiggle_angle = amplitude * Math.sin(2 * Math.PI * frequency * t + phase);
+        const wiggle_angle =
+          amplitude * Math.sin(2 * Math.PI * frequency * t + phase);
 
         let coal_transform = model_transform
-            .times(Mat4.translation(j - coal_cols / 2, -0.5, i - coal_rows / 2))
-            .times(Mat4.scale(0.7, 0.7, 0.7))
-            .times(Mat4.rotation(wiggle_angle, 0, 1, 0));
+          .times(Mat4.translation(j - coal_cols / 2, -0.5, i - coal_rows / 2))
+          .times(Mat4.scale(0.7, 0.7, 0.7))
+          .times(Mat4.rotation(wiggle_angle, 0, 1, 0));
 
         this.elements.shapes.coal.draw(
           context,
@@ -478,19 +566,20 @@ export class Assignment2 extends Base_Scene {
     // }
     let batter_transform = model_transform
       .times(Mat4.translation(-5, 6, 4))
-      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)); // Rotate to make flat
 
     const t = program_state.animation_time / 1000;
     const duration = 10;
     const max_height = 5;
     const batter_height = Math.min(max_height * (t / duration), max_height);
-    let batter_rise_transform = batter_transform
-        .times(Mat4.scale(5, batter_height, 2))
+    let batter_rise_transform = batter_transform.times(
+      Mat4.scale(5, batter_height, 2),
+    );
 
     let pan_transform = model_transform
       .times(Mat4.translation(-5, 6.5, 4))
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
-      .times(Mat4.scale(5.2, 5., 3));
+      .times(Mat4.scale(5.2, 5, 3));
 
     let pan_bottom_transform = model_transform
       .times(Mat4.translation(-5, 5, 4))
@@ -541,6 +630,144 @@ export class Assignment2 extends Base_Scene {
       this.elements.baking_start_time = program_state.animation_time;
     }
   }
+  draw_table(context, program_state, model_transform) {
+    let table_top_transform = model_transform
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+      .times(Mat4.translation(-5, -5, 0))
+      .times(Mat4.scale(30, 20, 0.2));
+
+    this.elements.shapes.table.draw(
+      context,
+      program_state,
+      table_top_transform,
+      this.elements.materials.table,
+    );
+  }
+
+  draw_table(context, program_state, model_transform) {
+    let table_top_transform = model_transform
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+      .times(Mat4.translation(-5, -5, 0))
+      .times(Mat4.scale(50, 20, 0.2));
+
+    this.elements.shapes.table.draw(
+      context,
+      program_state,
+      table_top_transform,
+      this.elements.materials.table,
+    );
+  }
+
+  draw_tableback(context, program_state, model_transform) {
+    let table_back_transform = model_transform
+      .times(Mat4.rotation(Math.PI/2, 1, 0, 0))
+      .times(Mat4.translation(-5, -25, -0.4))
+      .times(Mat4.scale(50, 2, 50));
+
+    this.elements.shapes.table.draw(
+      context,
+      program_state,
+      table_back_transform,
+      this.elements.materials.table,
+    );
+  }
+
+  // draw_tableback(context, program_state, model_transform) {
+  //   // Adjust translation and scaling to position the back correctly relative to the table top
+  //   let back_transform = model_transform
+  //       .times(Mat4.translation(-5, 15, 0))  // Move up in Y direction to place above table
+  //       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))  // Rotate to make it vertical
+  //       .times(Mat4.scale(30, 20, 0.2));  // Scale to appropriate size
+
+  //   console.log("Back Transform Matrix: ", back_transform);
+
+  //   this.elements.shapes.table_back.draw(
+  //       context,
+  //       program_state,
+  //       back_transform,
+  //       this.elements.materials.table
+  //   );
+  // }
+  //   draw_table(context, program_state, model_transform) {
+  //     let table_top_transform = model_transform
+  //       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+  //       .times(Mat4.translation(-5, -5, 0))
+  //       .times(Mat4.scale(30, 20, 0.2));
+
+  //     this.elements.shapes.table.draw(
+  //       context,
+  //       program_state,
+  //       table_top_transform,
+  //       this.elements.materials.table,
+  //     );
+  //   }
+
+  //   draw_tableback(context, program_state, model_transform) {
+  //     let back_transform = model_transform
+  //         .times(Mat4.translation(-5, -6, 0))
+  //         .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+  //         .times(Mat4.scale(30, 2, 200));
+
+  //     this.elements.shapes.table_back.draw(
+  //         context,
+  //         program_state,
+  //         back_transform,
+  //         this.elements.materials.table
+  //     );
+  // }
+
+  // draw_tableback(context, program_state, model_transform) {
+  //   let back_transform = model_transform
+  //     .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+  //     .times(Mat4.translation(0, 10, -15)) // Adjusted translation to place it behind the table top
+  //     .times(Mat4.scale(30, 20, 0.2)); // Scale to make it a thin wall
+
+  //   this.elements.shapes.table_back.draw( // Update shape name to table_back
+  //     context,
+  //     program_state,
+  //     back_transform,
+  //     this.elements.materials.table,
+  //   );
+  // }
+
+  // draw_tableback(context, program_state, model_transform) {
+  //   let back_transform = model_transform
+  //     .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+  //     .times(Mat4.translation(0, 10, 25)) // Adjusted translation to place it behind the table top
+  //     .times(Mat4.scale(30, 20, 10)); // Scale to make it a thin wall
+
+  //   this.elements.shapes.table.draw(
+  //     context,
+  //     program_state,
+  //     back_transform,
+  //     this.elements.materials.table,
+  //   );
+  // }
+
+  // draw_table(context, program_state, model_transform) {
+  //   let table_transform = model_transform
+  //     .times(Mat4.translation(-10, 5, 4))
+  //     .times(Mat4.scale(50, 10, 2));
+
+  //   this.elements.shapes.oven.draw(
+  //     context,
+  //     program_state,
+  //     table_transform,
+  //     this.elements.materials.table,
+  //   );
+
+  //   let tableback_transform = model_transform
+  //   .times(Mat4.translation(10, 5, 4))
+  //   .times(Mat4.scale(50, 10, 100));
+
+  //   this.elements.shapes.oven.draw(
+  //     context,
+  //     program_state,
+  //     tableback_transform,
+  //     this.elements.materials.table,
+  //   );
+
+  // }
 
   // draw_cake(context, program_state, model_transform) {
   //   for (let i = 0; i < this.layer_count; i++) {
@@ -559,31 +786,45 @@ export class Assignment2 extends Base_Scene {
   draw_toppings(context, program_state, model_transform) {
     for (let cherry of this.cherries) {
       const cherry_transform = model_transform
-          .times(Mat4.translation(cherry.x, cherry.y, cherry.z))
-          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-          .times(Mat4.scale(0.5, 0.5, 0.5));
+        .times(Mat4.translation(cherry.x, cherry.y, cherry.z))
+        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+        .times(Mat4.scale(0.5, 0.5, 0.5));
 
-      this.elements.shapes.cherry.draw(context, program_state, cherry_transform, this.elements.materials.cherry);
+      this.elements.shapes.cherry.draw(
+        context,
+        program_state,
+        cherry_transform,
+        this.elements.materials.cherry,
+      );
     }
 
     for (let strawberry of this.strawberries) {
       const strawberry_transform = model_transform
-          .times(Mat4.translation(strawberry.x, strawberry.y, strawberry.z))
-          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-          .times(Mat4.scale(0.5, 0.5, 0.5));
+        .times(Mat4.translation(strawberry.x, strawberry.y, strawberry.z))
+        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+        .times(Mat4.scale(0.5, 0.5, 0.5));
 
-      this.elements.shapes.strawberry.draw(context, program_state, strawberry_transform, this.elements.materials.strawberry);
+      this.elements.shapes.strawberry.draw(
+        context,
+        program_state,
+        strawberry_transform,
+        this.elements.materials.strawberry,
+      );
     }
 
     for (let blueberry of this.blueberries) {
       const blueberry_transform = model_transform
-          .times(Mat4.translation(blueberry.x, blueberry.y, blueberry.z))
-          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-          .times(Mat4.scale(0.25, 0.25, 0.25));
+        .times(Mat4.translation(blueberry.x, blueberry.y, blueberry.z))
+        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+        .times(Mat4.scale(0.25, 0.25, 0.25));
 
-      this.elements.shapes.blueberry.draw(context, program_state, blueberry_transform, this.elements.materials.blueberry);
+      this.elements.shapes.blueberry.draw(
+        context,
+        program_state,
+        blueberry_transform,
+        this.elements.materials.blueberry,
+      );
     }
-
   }
 
   remove_coals(model_transform) {
@@ -595,8 +836,9 @@ export class Assignment2 extends Base_Scene {
 
   draw_plate(context, program_state, model_transform) {
     let plate_transform = model_transform
-      .times(Mat4.translation(0, 2, 0))
-      .times(Mat4.scale(5, 0.2, 5));
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+      .times(Mat4.translation(-1, -0.3, 0))
+      .times(Mat4.scale(2, 2, 3));
 
     this.elements.shapes.plate.draw(
       context,
@@ -611,46 +853,45 @@ export class Assignment2 extends Base_Scene {
 
     if (camera_position !== 5) {
       let batter_transform = model_transform
-          .times(Mat4.translation(-50, -12.2, -40))
-          .times(Mat4.rotation(Math.PI / 1.6, 1, 0, 0))
-          .times(Mat4.scale(5, 5, 2));
+        .times(Mat4.translation(-50, -12.2, -40))
+        .times(Mat4.rotation(Math.PI / 1.6, 1, 0, 0))
+        .times(Mat4.scale(5, 5, 2));
 
       let pan_transform = model_transform
-          .times(Mat4.translation(-50, -12.2, -40))
-          .times(Mat4.rotation(Math.PI / 1.60, 1, 0, 0))
-          .times(Mat4.scale(5.2, 5.2, 3));
+        .times(Mat4.translation(-50, -12.2, -40))
+        .times(Mat4.rotation(Math.PI / 1.6, 1, 0, 0))
+        .times(Mat4.scale(5.2, 5.2, 3));
 
       let pan_bottom_transform = model_transform
-          .times(Mat4.translation(-50, -13.6, -40))
-          .times(Mat4.rotation(Math.PI / 1.60, 1, 0, 0))
-          .times(Mat4.scale(5.2, 5.2, 0));
+        .times(Mat4.translation(-50, -13.6, -40))
+        .times(Mat4.rotation(Math.PI / 1.6, 1, 0, 0))
+        .times(Mat4.scale(5.2, 5.2, 0));
 
       //Batter
       this.elements.shapes.cake.draw(
-          context,
-          program_state,
-          batter_transform,
-          this.elements.materials.cake.override({color: this.layer_color}),
+        context,
+        program_state,
+        batter_transform,
+        this.elements.materials.cake.override({ color: this.layer_color }),
       );
 
       //Bottom of pan
       this.elements.shapes.cake.draw(
-          context,
-          program_state,
-          pan_bottom_transform,
-          this.elements.materials.cake.override({color: hex_color("#808080")}),
+        context,
+        program_state,
+        pan_bottom_transform,
+        this.elements.materials.cake.override({ color: hex_color("#808080") }),
       );
 
       //Side of pan
       this.elements.shapes.pan.draw(
-          context,
-          program_state,
-          pan_transform,
-          this.elements.materials.pan.override({color: hex_color("#808080")}),
+        context,
+        program_state,
+        pan_transform,
+        this.elements.materials.pan.override({ color: hex_color("#808080") }),
       );
     }
   }
-
 
   display(context, program_state) {
     super.display(context, program_state);
@@ -659,7 +900,12 @@ export class Assignment2 extends Base_Scene {
     this.draw_toppings(context, program_state, model_transform);
     this.draw_pan(context, program_state, model_transform);
 
-    if (this.elements.baking_start_time === null && (this.elements.red_velvet_clicked || this.elements.chocolate_clicked || this.elements.vanilla_clicked)) {
+    if (
+      this.elements.baking_start_time === null &&
+      (this.elements.red_velvet_clicked ||
+        this.elements.chocolate_clicked ||
+        this.elements.vanilla_clicked)
+    ) {
       this.elements.baking_start_time = program_state.animation_time;
     }
 
@@ -675,6 +921,9 @@ export class Assignment2 extends Base_Scene {
 
     if (this.elements.baking_done) {
       this.draw_cake(context, program_state, model_transform);
+      this.draw_table(context, program_state, model_transform);
+      this.draw_tableback(context, program_state, model_transform);
+
       model_transform = this.remove_coals(model_transform);
 
       program_state.set_camera(
@@ -689,9 +938,6 @@ export class Assignment2 extends Base_Scene {
           .times(Mat4.translation(0, 2, 0))
           .times(Mat4.scale(5, 0.2, 5)),
       );
-
-
-
     } else {
       this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
@@ -741,8 +987,6 @@ export class Assignment2 extends Base_Scene {
         }, 1000);
       }
     }
-
-
   }
 }
 
