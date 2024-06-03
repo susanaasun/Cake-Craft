@@ -18,7 +18,7 @@ const {
   Texture,
 } = tiny;
 
-const { Axis_Arrows, Textured_Phong } = defs;
+const { Textured_Phong } = defs;
 
 export class Elements extends Scene {
   constructor() {
@@ -36,8 +36,8 @@ export class Elements extends Scene {
       strawberry: new defs.Rounded_Closed_Cone(20, 20),
       blueberry: new defs.Subdivision_Sphere(4),
       cake: new defs.Capped_Cylinder(50, 50), // Added second parameter for slices
-      candle: new defs.Capped_Cylinder(20, 10), // Added second parameter for slices
-      flame: new defs.Rounded_Closed_Cone(4, 10),
+      candle: new defs.Capped_Cylinder(10, 40), // Added second parameter for slices
+      flame: new defs.Subdivision_Sphere(4),
       table: new defs.Square(),
       table_back: new defs.Square(),
     };
@@ -105,17 +105,18 @@ export class Elements extends Scene {
         diffusivity: 1,
         color: hex_color("#808080"),
       }),
-      candle: new Material(new defs.Phong_Shader(), {
-        ambient: 0.2,
-        diffusivity: 1,
-        color: hex_color("#A4D6E9"),
+
+      candle: new Material(new defs.Textured_Phong(), {
+        ambient: 1,
+        color: hex_color("#000000"),
+        texture: new Texture("assets/rainbow.png", "NEAREST")
       }),
 
       flame: new Material(new defs.Phong_Shader(), {
         ambient: 0,
         diffusivity: 1,
-        color: hex_color("#ff5b47"),
-      }),
+        color: hex_color("#ff8037"),
+      })
     };
 
     // Cake Parameters
@@ -131,6 +132,8 @@ export class Elements extends Scene {
     this.strawberries = [];
     this.cherries = [];
     this.blueberries = [];
+    this.candles = [];
+    this.light_candles = false;
 
     // Baking Time
     this.total_baking = 0;
@@ -208,6 +211,7 @@ export class Assignment2 extends Base_Scene {
     this.strawberries = [];
     this.cherries = [];
     this.blueberries = [];
+    this.candles = [];
   }
 
   //Changes the flavors of the cake
@@ -342,6 +346,17 @@ export class Assignment2 extends Base_Scene {
       () => this.place_blueberry(),
       "#4f86f7",
     );
+
+    this.key_triggered_button(
+        "Candle",
+        ["c"],
+        () => this.place_candle(),
+        "#4758ca"
+    );
+
+    this.key_triggered_button("Light/Unlight Candles", ["u"], () =>
+        this.light_candles = !this.light_candles, "#eca202"
+    );
   }
 
   remove_toppings_from_layer(layer) {
@@ -354,6 +369,9 @@ export class Assignment2 extends Base_Scene {
     this.blueberries = this.blueberries.filter(
       (blueberry) => blueberry.y < this.layer_height * layer + 6.5,
     );
+    this.candles = this.candles.filter(
+        (candle) => candle.y < this.layer_height * layer + 6.5,
+    )
   }
 
   change_layer_count(change) {
@@ -367,7 +385,7 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_cherry() {
-    const max_cherries = 10;
+    const max_cherries = 8;
 
     if (this.cherries.length >= max_cherries) return;
 
@@ -402,6 +420,7 @@ export class Assignment2 extends Base_Scene {
         ...this.cherries,
         ...this.strawberries,
         ...this.blueberries,
+        ...this.candles,
       ].every(
         (existing) => distance(new_cherry_position, existing) >= min_distance,
       );
@@ -411,7 +430,7 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_strawberry() {
-    const max_strawberries = 10;
+    const max_strawberries = 8;
 
     if (this.strawberries.length >= max_strawberries) return;
 
@@ -446,6 +465,7 @@ export class Assignment2 extends Base_Scene {
         ...this.strawberries,
         ...this.cherries,
         ...this.blueberries,
+        ...this.candles,
       ].every(
         (existing) =>
           distance(new_strawberry_position, existing) >= min_distance,
@@ -491,6 +511,7 @@ export class Assignment2 extends Base_Scene {
         ...this.blueberries,
         ...this.strawberries,
         ...this.cherries,
+        ...this.candles,
       ].every(
         (existing) =>
           distance(new_blueberry_position, existing) >= min_distance,
@@ -498,6 +519,45 @@ export class Assignment2 extends Base_Scene {
     }
 
     this.blueberries.push(new_blueberry_position);
+  }
+
+  place_candle() {
+    const max_candles = 10;
+
+    if (this.candles.length >= max_candles) return;
+    const min_distance = 3;
+    let attempts = 0;
+    const max_attempts = 100;
+
+    const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
+
+    let new_candle_position;
+    let valid_position = false;
+
+    while (!valid_position && attempts < max_attempts) {
+      attempts++;
+      const angle = Math.random() * 2 * Math.PI;
+      const max_radius = this.layer_radius - (this.layer_count - 1);
+      const radius = Math.random() * max_radius;
+      const x = radius * Math.cos(angle) - 5;
+      const z = radius * Math.sin(angle) + 4;
+      let y = this.layer_height * this.layer_count + 6.5;
+
+      if (this.layer_count === 2) {
+        y += this.layer_height;
+      } else if (this.layer_count === 3) {
+        y += 2 * this.layer_height;
+      }
+
+      new_candle_position = {x, y, z};
+      valid_position =
+          [...this.candles, ...this.strawberries, ...this.cherries, ...this.blueberries]
+              .every(existing =>
+                  distance( new_candle_position, existing) >= min_distance
+              );
+    }
+
+    this.candles.push(new_candle_position);
   }
 
   draw_oven(context, program_state, model_transform) {
@@ -635,20 +695,6 @@ export class Assignment2 extends Base_Scene {
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
       .times(Mat4.translation(-5, -5, 0))
       .times(Mat4.scale(30, 20, 0.2));
-
-    this.elements.shapes.table.draw(
-      context,
-      program_state,
-      table_top_transform,
-      this.elements.materials.table,
-    );
-  }
-
-  draw_table(context, program_state, model_transform) {
-    let table_top_transform = model_transform
-      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
-      .times(Mat4.translation(-5, -5, 0))
-      .times(Mat4.scale(50, 20, 0.2));
 
     this.elements.shapes.table.draw(
       context,
@@ -825,6 +871,35 @@ export class Assignment2 extends Base_Scene {
         this.elements.materials.blueberry,
       );
     }
+
+    for (let candle of this.candles) {
+      const candle_transform = model_transform
+          .times(Mat4.translation(candle.x, candle.y, candle.z))
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.scale(0.2, 0.2, 1.3));
+
+      this.elements.shapes.candle.draw(
+          context,
+          program_state,
+          candle_transform,
+          this.elements.materials.candle
+      );
+
+      if (this.light_candles) {
+        let angle = (0.25 * Math.PI / 4 * Math.sin(Math.PI*program_state.animation_time / 1000));
+        const flame_transform = model_transform
+            .times(Mat4.translation(candle.x, candle.y + 1.0, candle.z))
+            .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+            .times(Mat4.rotation(angle, 0, 1, 0))
+            .times(Mat4.scale(0.2, 0.2, 0.3));
+        this.elements.shapes.flame.draw(
+            context,
+            program_state,
+            flame_transform,
+            this.elements.materials.flame
+        );
+      }
+    }
   }
 
   remove_coals(model_transform) {
@@ -913,7 +988,7 @@ export class Assignment2 extends Base_Scene {
     if (this.elements.baking_start_time !== null) {
       const total_time =
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
-      if (total_time > 10) {
+      if (total_time > 2) { //CHANGE THIS
         this.elements.baking_done = true;
         this.elements.baking_end_time = program_state.animation_time;
       }
