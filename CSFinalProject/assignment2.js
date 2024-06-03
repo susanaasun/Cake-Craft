@@ -357,6 +357,10 @@ export class Assignment2 extends Base_Scene {
     this.key_triggered_button("Light/Unlight Candles", ["u"], () =>
         this.light_candles = !this.light_candles, "#eca202"
     );
+
+    this.key_triggered_button("Remove all toppings", ["d"], () =>
+        this.remove_all_toppings(), "#1fa88f"
+    );
   }
 
   remove_toppings_from_layer(layer) {
@@ -374,6 +378,12 @@ export class Assignment2 extends Base_Scene {
     )
   }
 
+  remove_all_toppings() {
+    this.cherries = [];
+    this.strawberries = [];
+    this.blueberries = [];
+    this.candles = [];
+  }
   change_layer_count(change) {
     if (this.elements.baking_done) {
       const new_layer_count = Math.max(1, this.layer_count + change);
@@ -988,7 +998,7 @@ export class Assignment2 extends Base_Scene {
     if (this.elements.baking_start_time !== null) {
       const total_time =
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
-      if (total_time > 2) { //CHANGE THIS
+      if (total_time > 8) {
         this.elements.baking_done = true;
         this.elements.baking_end_time = program_state.animation_time;
       }
