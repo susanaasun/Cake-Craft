@@ -37,7 +37,8 @@ export class Elements extends Scene {
       blueberry: new defs.Subdivision_Sphere(4),
       cake: new defs.Capped_Cylinder(50, 50), // Added second parameter for slices
       candle: new defs.Capped_Cylinder(10, 40), // Added second parameter for slices
-      flame: new defs.Subdivision_Sphere(4),
+      wick: new defs.Capped_Cylinder(10, 40),
+      flame: new defs.Rounded_Closed_Cone(3, 4),
       table: new defs.Square(),
       table_back: new defs.Square(),
     };
@@ -109,14 +110,23 @@ export class Elements extends Scene {
       candle: new Material(new defs.Textured_Phong(), {
         ambient: 1,
         color: hex_color("#000000"),
-        texture: new Texture("assets/rainbow.png", "NEAREST")
+        texture: new Texture("assets/rainbowss.png", "NEAREST"),
       }),
-
+      // wick: new Material(new defs.Phong_Shader(), {
+      //   ambient: 0.4,
+      //   diffusivity: 1,
+      //   color: hex_color("#ffffff"),
+      // }),
+      wick: new Material(new defs.Textured_Phong(), {
+        ambient: 1,
+        color: hex_color("#ffffff"),
+        texture: new Texture("assets/wick.png", "NEAREST"),
+      }),
       flame: new Material(new defs.Phong_Shader(), {
         ambient: 0,
         diffusivity: 1,
         color: hex_color("#ff8037"),
-      })
+      }),
     };
 
     // Cake Parameters
@@ -348,18 +358,24 @@ export class Assignment2 extends Base_Scene {
     );
 
     this.key_triggered_button(
-        "Candle",
-        ["c"],
-        () => this.place_candle(),
-        "#4758ca"
+      "Candle",
+      ["c"],
+      () => this.place_candle(),
+      "#4758ca",
     );
 
-    this.key_triggered_button("Light/Unlight Candles", ["u"], () =>
-        this.light_candles = !this.light_candles, "#eca202"
+    this.key_triggered_button(
+      "Light/Unlight Candles",
+      ["u"],
+      () => (this.light_candles = !this.light_candles),
+      "#eca202",
     );
 
-    this.key_triggered_button("Remove all toppings", ["d"], () =>
-        this.remove_all_toppings(), "#1fa88f"
+    this.key_triggered_button(
+      "Remove all toppings",
+      ["d"],
+      () => this.remove_all_toppings(),
+      "#1fa88f",
     );
   }
 
@@ -374,8 +390,8 @@ export class Assignment2 extends Base_Scene {
       (blueberry) => blueberry.y < this.layer_height * layer + 6.5,
     );
     this.candles = this.candles.filter(
-        (candle) => candle.y < this.layer_height * layer + 6.5,
-    )
+      (candle) => candle.y < this.layer_height * layer + 6.5,
+    );
   }
 
   remove_all_toppings() {
@@ -541,11 +557,12 @@ export class Assignment2 extends Base_Scene {
 
     if (this.candles.length >= max_candles) return;
 
-    const distance = (a, b) => Math.sqrt(
+    const distance = (a, b) =>
+      Math.sqrt(
         Math.pow(a.x - b.x, 2) +
-        Math.pow(a.y - b.y, 2) +
-        Math.pow(a.z - b.z, 2)
-    );
+          Math.pow(a.y - b.y, 2) +
+          Math.pow(a.z - b.z, 2),
+      );
 
     while (!valid_position && attempts < max_attempts) {
       attempts++;
@@ -562,12 +579,15 @@ export class Assignment2 extends Base_Scene {
         y += 2 * this.layer_height;
       }
 
-      new_candle_position = {x, y, z};
-      valid_position =
-          [...this.candles, ...this.strawberries, ...this.cherries, ...this.blueberries]
-              .every(existing =>
-                  distance( new_candle_position, existing) >= min_distance
-              );
+      new_candle_position = { x, y, z };
+      valid_position = [
+        ...this.candles,
+        ...this.strawberries,
+        ...this.cherries,
+        ...this.blueberries,
+      ].every(
+        (existing) => distance(new_candle_position, existing) >= min_distance,
+      );
     }
 
     if (valid_position) {
@@ -723,7 +743,7 @@ export class Assignment2 extends Base_Scene {
 
   draw_tableback(context, program_state, model_transform) {
     let table_back_transform = model_transform
-      .times(Mat4.rotation(Math.PI/2, 1, 0, 0))
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
       .times(Mat4.translation(-5, -25, -0.4))
       .times(Mat4.scale(50, 2, 50));
 
@@ -891,29 +911,57 @@ export class Assignment2 extends Base_Scene {
 
     for (let candle of this.candles) {
       const candle_transform = model_transform
-          .times(Mat4.translation(candle.x, candle.y, candle.z))
-          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-          .times(Mat4.scale(0.2, 0.2, 1.3));
+        .times(Mat4.translation(candle.x, candle.y, candle.z))
+        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+        .times(Mat4.scale(0.2, 0.2, 1.3));
 
+      const wick_transform = candle_transform.times(Mat4.scale(0.2, 0.1, 1.3));
       this.elements.shapes.candle.draw(
-          context,
-          program_state,
-          candle_transform,
-          this.elements.materials.candle
+        context,
+        program_state,
+        candle_transform,
+        this.elements.materials.candle,
+      );
+      this.elements.shapes.wick.draw(
+        context,
+        program_state,
+        wick_transform,
+        this.elements.materials.wick,
       );
 
       if (this.light_candles) {
-        let angle = (0.25 * Math.PI / 4 * Math.sin(Math.PI*program_state.animation_time / 1000));
+        let angle =
+          ((0.25 * Math.PI) / 4) *
+          Math.sin((Math.PI * program_state.animation_time) / 1000);
+        // const flame_transform = model_transform
+        //   .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z))
+        //   .times(Mat4.translation(0, 0.3, 0))
+        //   .times(Mat4.rotation(angle, 0, 1, 0))
+        //   .times(Mat4.translation(0, -0.3, 0))
+        //   .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+        //   .times(Mat4.scale(0.2, 0.2, 0.3));
+        const t = program_state.animation_time / 1000;
+
+        // var colorVal = (1 + Math.sin(((0.3 * Math.PI) / 10) * t)) / 2;
+        // var flameColor = color(1, colorVal - 0.4, 0, Math.max(colorVal, 0.7));
+    // let rgb = (1 + Math.sin(((2 * Math.PI) / 10) * t)) / 2;
+    // var sun_color = color(1, rgb, rgb, 1);
+
+
+        let r = 0.7 + 0.1 * Math.sin(((2 * Math.PI) / 10)  * t); // Red varies from 0.9 to 1
+        let g = 0.3 + 0.2 * Math.sin(((2 * Math.PI) / 10)  * t); // Green varies from 0.3 to 0.5
+        var flameColor = color(r, g, 0, 1); // Blue is 0, Alpha is 1
+        
         const flame_transform = model_transform
-            .times(Mat4.translation(candle.x, candle.y + 1.0, candle.z))
-            .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-            .times(Mat4.rotation(angle, 0, 1, 0))
-            .times(Mat4.scale(0.2, 0.2, 0.3));
+          .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z))
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.rotation(angle, 0, 1, 0))
+          .times(Mat4.scale(0.2, 0.2, 0.3));
         this.elements.shapes.flame.draw(
-            context,
-            program_state,
-            flame_transform,
-            this.elements.materials.flame
+          context,
+          program_state,
+          flame_transform,
+          this.elements.materials.flame.override({ color: flameColor }),
         );
       }
     }
