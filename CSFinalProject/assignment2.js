@@ -533,16 +533,19 @@ export class Assignment2 extends Base_Scene {
 
   place_candle() {
     const max_candles = 10;
-
-    if (this.candles.length >= max_candles) return;
-    const min_distance = 3;
+    const min_distance = 1;
     let attempts = 0;
     const max_attempts = 100;
-
-    const distance = (a, b) => Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2) + Math.pow(a.z - b.z, 2));
-
     let new_candle_position;
     let valid_position = false;
+
+    if (this.candles.length >= max_candles) return;
+
+    const distance = (a, b) => Math.sqrt(
+        Math.pow(a.x - b.x, 2) +
+        Math.pow(a.y - b.y, 2) +
+        Math.pow(a.z - b.z, 2)
+    );
 
     while (!valid_position && attempts < max_attempts) {
       attempts++;
@@ -567,7 +570,11 @@ export class Assignment2 extends Base_Scene {
               );
     }
 
-    this.candles.push(new_candle_position);
+    if (valid_position) {
+      this.candles.push(new_candle_position);
+    } else if (attempts >= max_attempts) {
+      console.warn("Failed to place candle after maximum attempts");
+    }
   }
 
   draw_oven(context, program_state, model_transform) {
