@@ -384,6 +384,33 @@ export class Assignment2 extends Base_Scene {
     this.blueberries = [];
     this.candles = [];
   }
+
+  /*
+  adjust_toppings_to_previous_layer() {
+    const previous_layer_radius = 5 - (this.layer_count - 1);
+    for (let topping of [...this.cherries, ...this.strawberries, ...this.candles]) {
+      const distance_from_center = Math.sqrt(Math.pow(topping.x + 5, 2) + Math.pow(topping.z - 4, 2));
+      if (distance_from_center > previous_layer_radius) {
+        const angle = Math.atan2(topping.z - 4, topping.x + 5);
+        topping.x = previous_layer_radius * Math.cos(angle) - 5;
+        topping.z = previous_layer_radius * Math.sin(angle) + 4;
+        topping.y = (this.layer_count - 1) * this.layer_height + 6.5;
+      }
+    }
+  }
+
+  change_layer_count(change) {
+    const new_layer_count = Math.max(1, this.layer_count + change);
+    if (change < 0 && this.layer_count > new_layer_count) {
+      this.remove_toppings_from_layer(this.layer_count);
+    } else if (change > 0) {
+      this.layer_count = new_layer_count;
+      this.adjust_toppings_to_previous_layer();
+    }
+    this.layer_count = new_layer_count;
+  }
+  */
+
   change_layer_count(change) {
     if (this.elements.baking_done) {
       const new_layer_count = Math.max(1, this.layer_count + change);
@@ -395,7 +422,7 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_cherry() {
-    const max_cherries = 8;
+    const max_cherries = 6;
 
     if (this.cherries.length >= max_cherries) return;
 
@@ -404,7 +431,7 @@ export class Assignment2 extends Base_Scene {
     const distance = (a, b) =>
       Math.sqrt(
         Math.pow(a.x - b.x, 2) +
-          Math.pow(a.y - b.y, 2) +
+          //Math.pow(a.y - b.y, 2) +
           Math.pow(a.z - b.z, 2),
       );
 
@@ -413,11 +440,11 @@ export class Assignment2 extends Base_Scene {
 
     while (!valid_position) {
       const angle = Math.random() * 2 * Math.PI;
-      const max_radius = 5 - (this.layer_count - 1);
+      const max_radius = 4.5 - (this.layer_count - 1);
       const radius = Math.random() * max_radius;
       const x = radius * Math.cos(angle) - 5;
       const z = radius * Math.sin(angle) + 4;
-      let y = this.layer_height * this.layer_count + 6.5;
+      let y = this.layer_height * this.layer_count + 13;
 
       if (this.layer_count === 2) {
         y += this.layer_height;
@@ -425,7 +452,7 @@ export class Assignment2 extends Base_Scene {
         y += 2 * this.layer_height;
       }
 
-      new_cherry_position = { x, y, z };
+      new_cherry_position = { x, y, z, velocity: 0};
       valid_position = [
         ...this.cherries,
         ...this.strawberries,
@@ -440,7 +467,7 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_strawberry() {
-    const max_strawberries = 8;
+    const max_strawberries = 6;
 
     if (this.strawberries.length >= max_strawberries) return;
 
@@ -449,7 +476,7 @@ export class Assignment2 extends Base_Scene {
     const distance = (a, b) =>
       Math.sqrt(
         Math.pow(a.x - b.x, 2) +
-          Math.pow(a.y - b.y, 2) +
+          //Math.pow(a.y - b.y, 2) +
           Math.pow(a.z - b.z, 2),
       );
 
@@ -458,11 +485,11 @@ export class Assignment2 extends Base_Scene {
 
     while (!valid_position) {
       const angle = Math.random() * 2 * Math.PI;
-      const max_radius = 5 - (this.layer_count - 1);
+      const max_radius = 4.5 - (this.layer_count - 1);
       const radius = Math.random() * max_radius;
       const x = radius * Math.cos(angle) - 5;
       const z = radius * Math.sin(angle) + 4;
-      let y = this.layer_height * this.layer_count + 6.5;
+      let y = this.layer_height * this.layer_count + 13;
 
       if (this.layer_count === 2) {
         y += this.layer_height;
@@ -470,7 +497,7 @@ export class Assignment2 extends Base_Scene {
         y += 2 * this.layer_height;
       }
 
-      new_strawberry_position = { x, y, z };
+      new_strawberry_position = { x, y, z, velocity: 0};
       valid_position = [
         ...this.strawberries,
         ...this.cherries,
@@ -486,7 +513,7 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_blueberry() {
-    const max_blueberries = 15;
+    const max_blueberries = 12;
 
     if (this.blueberries.length >= max_blueberries) return;
 
@@ -495,7 +522,7 @@ export class Assignment2 extends Base_Scene {
     const distance = (a, b) =>
       Math.sqrt(
         Math.pow(a.x - b.x, 2) +
-          Math.pow(a.y - b.y, 2) +
+          //Math.pow(a.y - b.y, 2) +
           Math.pow(a.z - b.z, 2),
       );
 
@@ -508,7 +535,7 @@ export class Assignment2 extends Base_Scene {
       const radius = Math.random() * max_radius;
       const x = radius * Math.cos(angle) - 5;
       const z = radius * Math.sin(angle) + 4;
-      let y = this.layer_height * this.layer_count + 6.5;
+      let y = this.layer_height * this.layer_count + 13;
 
       if (this.layer_count === 2) {
         y += this.layer_height;
@@ -516,7 +543,7 @@ export class Assignment2 extends Base_Scene {
         y += 2 * this.layer_height;
       }
 
-      new_blueberry_position = { x, y, z };
+      new_blueberry_position = { x, y, z, velocity: 0};
       valid_position = [
         ...this.blueberries,
         ...this.strawberries,
@@ -532,7 +559,7 @@ export class Assignment2 extends Base_Scene {
   }
 
   place_candle() {
-    const max_candles = 10;
+    const max_candles = 8;
     const min_distance = 1;
     let attempts = 0;
     const max_attempts = 100;
@@ -543,7 +570,7 @@ export class Assignment2 extends Base_Scene {
 
     const distance = (a, b) => Math.sqrt(
         Math.pow(a.x - b.x, 2) +
-        Math.pow(a.y - b.y, 2) +
+        //Math.pow(a.y - b.y, 2) +
         Math.pow(a.z - b.z, 2)
     );
 
@@ -554,7 +581,7 @@ export class Assignment2 extends Base_Scene {
       const radius = Math.random() * max_radius;
       const x = radius * Math.cos(angle) - 5;
       const z = radius * Math.sin(angle) + 4;
-      let y = this.layer_height * this.layer_count + 6.5;
+      let y = this.layer_height * this.layer_count + 13;
 
       if (this.layer_count === 2) {
         y += this.layer_height;
@@ -562,7 +589,7 @@ export class Assignment2 extends Base_Scene {
         y += 2 * this.layer_height;
       }
 
-      new_candle_position = {x, y, z};
+      new_candle_position = {x, y, z, velocity: 0};
       valid_position =
           [...this.candles, ...this.strawberries, ...this.cherries, ...this.blueberries]
               .every(existing =>
@@ -574,6 +601,33 @@ export class Assignment2 extends Base_Scene {
       this.candles.push(new_candle_position);
     } else if (attempts >= max_attempts) {
       console.warn("Failed to place candle after maximum attempts");
+    }
+  }
+
+  apply_gravity_and_collision(topping) {
+    const gravity = -0.05;
+
+    var cake_top_y = this.layer_height * this.layer_count + 6.5;
+
+    if (this.layer_count == 2) {
+      cake_top_y = this.layer_height * this.layer_count + 7.5;
+    }
+
+    else if (this.layer_count == 3) {
+      cake_top_y = this.layer_height * this.layer_count + 8.5;
+    }
+
+    else if (this.layer_count == 4) {
+      cake_top_y = this.layer_height * this.layer_count + 9.5;
+    }
+
+
+    topping.velocity += gravity;
+    topping.y += topping.velocity;
+
+    if (topping.y <= cake_top_y) {
+      topping.y = cake_top_y;
+      topping.velocity = 0;
     }
   }
 
@@ -848,6 +902,8 @@ export class Assignment2 extends Base_Scene {
 
   draw_toppings(context, program_state, model_transform) {
     for (let cherry of this.cherries) {
+      this.apply_gravity_and_collision(cherry);
+
       const cherry_transform = model_transform
         .times(Mat4.translation(cherry.x, cherry.y, cherry.z))
         .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
@@ -862,6 +918,7 @@ export class Assignment2 extends Base_Scene {
     }
 
     for (let strawberry of this.strawberries) {
+      this.apply_gravity_and_collision(strawberry);
       const strawberry_transform = model_transform
         .times(Mat4.translation(strawberry.x, strawberry.y, strawberry.z))
         .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
@@ -876,6 +933,7 @@ export class Assignment2 extends Base_Scene {
     }
 
     for (let blueberry of this.blueberries) {
+      this.apply_gravity_and_collision(blueberry);
       const blueberry_transform = model_transform
         .times(Mat4.translation(blueberry.x, blueberry.y, blueberry.z))
         .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
@@ -890,6 +948,7 @@ export class Assignment2 extends Base_Scene {
     }
 
     for (let candle of this.candles) {
+      this.apply_gravity_and_collision(candle);
       const candle_transform = model_transform
           .times(Mat4.translation(candle.x, candle.y, candle.z))
           .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
