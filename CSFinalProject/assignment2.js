@@ -61,7 +61,13 @@ export class Elements extends Scene {
         color: hex_color("#000000"),
         ambient: 1,
         diffusivity: 0.1,
-        texture: new Texture("assets/marbles.png"),
+        texture: new Texture("assets/table.png"),
+      }),
+      tableback: new Material(new Textured_Phong(), {
+        color: hex_color("#000000"),
+        ambient: 1,
+        diffusivity: 0.1,
+        texture: new Texture("assets/marbles2.png"),
       }),
 
       ovenrack: new Material(new defs.Phong_Shader(), {
@@ -117,16 +123,23 @@ export class Elements extends Scene {
       //   diffusivity: 1,
       //   color: hex_color("#ffffff"),
       // }),
+
+      flame: new Material(new defs.Textured_Phong(), {
+        ambient: 1,
+        color: hex_color("#000000"),
+        texture: new Texture("assets/flames.png", "NEAREST"),
+      }),
+
       wick: new Material(new defs.Textured_Phong(), {
         ambient: 1,
         color: hex_color("#ffffff"),
         texture: new Texture("assets/wick.png", "NEAREST"),
       }),
-      flame: new Material(new defs.Phong_Shader(), {
-        ambient: 0,
-        diffusivity: 1,
-        color: hex_color("#ff8037"),
-      }),
+      // flame: new Material(new defs.Phong_Shader(), {
+      //   ambient: 0,
+      //   diffusivity: 1,
+      //   color: hex_color("#ff8037"),
+      // }),
     };
 
     // Cake Parameters
@@ -727,11 +740,12 @@ export class Assignment2 extends Base_Scene {
       this.elements.baking_start_time = program_state.animation_time;
     }
   }
+
   draw_table(context, program_state, model_transform) {
     let table_top_transform = model_transform
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
       .times(Mat4.translation(-5, -5, 0))
-      .times(Mat4.scale(30, 20, 0.2));
+      .times(Mat4.scale(100, 20, 0.2));
 
     this.elements.shapes.table.draw(
       context,
@@ -742,16 +756,26 @@ export class Assignment2 extends Base_Scene {
   }
 
   draw_tableback(context, program_state, model_transform) {
-    let table_back_transform = model_transform
-      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
-      .times(Mat4.translation(-5, -25, -0.4))
-      .times(Mat4.scale(50, 2, 50));
+    let table_back_transform = model_transform.times(
+      Mat4.translation(0, 18, -20),
+    ); // Pushing the square back
+
+    table_back_transform = table_back_transform
+      .times(Mat4.rotation(Math.PI, 1, 0, 0))
+      .times(Mat4.translation(15, 91, 2))
+      .times(Mat4.scale(100, 100, 100));
+     
+
+    // let table_back_transform = model_transform
+    //   .times(Mat4.rotation(Math.PI , 1, 0, 0))
+    //   .times(Mat4.translation(-5, -25, -0.4))
+    //   .times(Mat4.scale(50, 2, 50));
 
     this.elements.shapes.table.draw(
       context,
       program_state,
       table_back_transform,
-      this.elements.materials.table,
+      this.elements.materials.tableback,
     );
   }
 
@@ -944,24 +968,36 @@ export class Assignment2 extends Base_Scene {
 
         // var colorVal = (1 + Math.sin(((0.3 * Math.PI) / 10) * t)) / 2;
         // var flameColor = color(1, colorVal - 0.4, 0, Math.max(colorVal, 0.7));
-    // let rgb = (1 + Math.sin(((2 * Math.PI) / 10) * t)) / 2;
-    // var sun_color = color(1, rgb, rgb, 1);
+        // let rgb = (1 + Math.sin(((2 * Math.PI) / 10) * t)) / 2;
+        // var sun_color = color(1, rgb, rgb, 1);
 
+        // let r = 0.7 + 0.1 * Math.sin(((2 * Math.PI) / 10)  * t); // Red varies from 0.9 to 1
+        // let g = 0.3 + 0.2 * Math.sin(((2 * Math.PI) / 10)  * t); // Green varies from 0.3 to 0.5
+        // var flameColor = color(r, g, 0, 1); // Blue is 0, Alpha is 1
 
-        let r = 0.7 + 0.1 * Math.sin(((2 * Math.PI) / 10)  * t); // Red varies from 0.9 to 1
-        let g = 0.3 + 0.2 * Math.sin(((2 * Math.PI) / 10)  * t); // Green varies from 0.3 to 0.5
-        var flameColor = color(r, g, 0, 1); // Blue is 0, Alpha is 1
-        
+        // const flame_transform = model_transform
+        //   .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z))
+        //   .times(Mat4.translation(0, 0.3, 0))
+        //   .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+        //   .times(Mat4.rotation(angle, 0, 1, 0))
+        //   .times(Mat4.scale(0.2, 0.2, 0.3));
+
         const flame_transform = model_transform
-          .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z))
+          .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z)) // Position the flame above the candle
+          .times(Mat4.translation(0, 0, -0.3)) // Move the origin to the bottom of the flame
           .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-          .times(Mat4.rotation(angle, 0, 1, 0))
-          .times(Mat4.scale(0.2, 0.2, 0.3));
+          .times(Mat4.rotation(angle, 0, 1, 0)) // Apply the sway rotation
+          .times(Mat4.translation(0, -0.15, 0.15)) // Move the origin back
+          .times(Mat4.scale(0.2, 0.2, 0.25)) // Scale the flame to its intended size
+          .times(Mat4.translation(0, -0.7, -0.6)); // Move the origin back
+
+        // this.elements.materials.flame.override({ color: flameColor }),
+
         this.elements.shapes.flame.draw(
           context,
           program_state,
           flame_transform,
-          this.elements.materials.flame.override({ color: flameColor }),
+          this.elements.materials.flame,
         );
       }
     }
