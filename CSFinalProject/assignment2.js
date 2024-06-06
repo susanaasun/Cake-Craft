@@ -1210,7 +1210,7 @@ export class Assignment2 extends Base_Scene {
     if (this.elements.baking_start_time !== null) {
       const total_time =
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
-      if (total_time > 2) {
+      if (total_time > 10) {
         this.elements.baking_done = true;
         this.elements.baking_end_time = program_state.animation_time;
       }
