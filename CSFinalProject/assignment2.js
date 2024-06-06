@@ -42,6 +42,7 @@ export class Elements extends Scene {
       table: new defs.Square(),
       table_back: new defs.Square(),
       confetti: new defs.Capped_Cylinder(10, 10),
+      sprinkles: new defs.Capped_Cylinder(6, 6),
     };
 
     this.materials = {
@@ -135,6 +136,12 @@ export class Elements extends Scene {
         specularity: 0,
         color: hex_color("#ff69b4")
       }),
+
+      sprinkles: new Material(new defs.Phong_Shader(), {
+        ambient: 0.5,
+        diffusivity: 1,
+        color: hex_color("#FFD700")
+      }),
     };
 
     // Cake Parameters
@@ -174,6 +181,10 @@ export class Elements extends Scene {
 
     this.confetti = [];
     this.confetti_active = false;
+
+    this.sprinkles = [];
+    this.sprinkles_active = false;
+
   }
 }
 
@@ -258,154 +269,163 @@ export class Assignment2 extends Base_Scene {
   make_control_panel() {
     if (this.elements.baking_done == false) {
       this.key_triggered_button(
-        "Red Velvet",
-        ["r"],
-        () => {
-          if (!this.elements.baking_done) {
-            this.set_batter_colors("r");
-            this.elements.red_velvet_clicked = true;
-            this.elements.baking_start_time = null;
-          }
-        },
-        "#9c0000",
+          "Red Velvet",
+          ["r"],
+          () => {
+            if (!this.elements.baking_done) {
+              this.set_batter_colors("r");
+              this.elements.red_velvet_clicked = true;
+              this.elements.baking_start_time = null;
+            }
+          },
+          "#9c0000",
       );
 
       this.key_triggered_button(
-        "Chocolate",
-        ["c"],
-        () => {
-          if (!this.elements.baking_done) {
-            this.set_batter_colors("c");
-            this.elements.chocolate_clicked = true;
-            this.elements.baking_start_time = null;
-          }
-        },
-        "#684836",
+          "Chocolate",
+          ["c"],
+          () => {
+            if (!this.elements.baking_done) {
+              this.set_batter_colors("c");
+              this.elements.chocolate_clicked = true;
+              this.elements.baking_start_time = null;
+            }
+          },
+          "#684836",
       );
       this.key_triggered_button(
-        "Vanilla",
-        ["v"],
-        () => {
-          if (!this.elements.baking_done) {
-            this.set_batter_colors("w");
-            this.elements.vanilla_clicked = true;
-            this.elements.baking_start_time = null;
-          }
-        },
-        "#C6B296",
+          "Vanilla",
+          ["v"],
+          () => {
+            if (!this.elements.baking_done) {
+              this.set_batter_colors("w");
+              this.elements.vanilla_clicked = true;
+              this.elements.baking_start_time = null;
+            }
+          },
+          "#C6B296",
       );
       this.key_triggered_button(
-        "Pink Frosting",
-        ["p"],
-        () => {
-          if (this.elements.baking_done) {
-            this.set_frosting_colors("p");
-          }
-        },
-        "#FFB6C1",
+          "Pink Frosting",
+          ["p"],
+          () => {
+            if (this.elements.baking_done) {
+              this.set_frosting_colors("p");
+            }
+          },
+          "#FFB6C1",
       );
       this.key_triggered_button(
-        "White Frosting",
-        ["w"],
-        () => {
-          if (this.elements.baking_done) {
-            this.set_frosting_colors("w");
-          }
-        },
-        "#B6AC9E",
+          "White Frosting",
+          ["w"],
+          () => {
+            if (this.elements.baking_done) {
+              this.set_frosting_colors("w");
+            }
+          },
+          "#B6AC9E",
       );
       this.key_triggered_button(
-        "Blue Frosting",
-        ["b"],
-        () => {
-          if (this.elements.baking_done) {
-            this.set_frosting_colors("b");
-          }
-        },
-        "#6099DA",
+          "Blue Frosting",
+          ["b"],
+          () => {
+            if (this.elements.baking_done) {
+              this.set_frosting_colors("b");
+            }
+          },
+          "#6099DA",
       );
     } else {
       this.key_triggered_button("Pink Frosting", ["p"], () =>
-        this.set_frosting_colors("p"),
+          this.set_frosting_colors("p"),
       );
       this.key_triggered_button("White Frosting", ["w"], () =>
-        this.set_frosting_colors("w"),
+          this.set_frosting_colors("w"),
       );
       this.key_triggered_button("Blue Frosting", ["b"], () =>
-        this.set_frosting_colors("b"),
+          this.set_frosting_colors("b"),
       );
     }
 
     this.key_triggered_button(
-      "Increase Cake Layers",
-      ["i"],
-      () => this.change_layer_count(1),
-      "#529758",
+        "Increase Cake Layers",
+        ["i"],
+        () => this.change_layer_count(1),
+        "#529758",
     );
     this.key_triggered_button(
-      "Decrease Cake Layers",
-      ["d"],
-      () => this.change_layer_count(-1),
-      "#B76FCA",
+        "Decrease Cake Layers",
+        ["d"],
+        () => this.change_layer_count(-1),
+        "#B76FCA",
     );
     this.key_triggered_button(
-      "Cherry",
-      ["p"],
-      () => this.place_cherry(),
-      "#F81B36",
+        "Cherry",
+        ["p"],
+        () => this.place_cherry(),
+        "#F81B36",
     );
     this.key_triggered_button(
-      "Strawberry",
-      ["s"],
-      () => this.place_strawberry(),
-      "#EF2F86",
-    );
-
-    this.key_triggered_button(
-      "Blueberry",
-      ["t"],
-      () => this.place_blueberry(),
-      "#4f86f7",
+        "Strawberry",
+        ["s"],
+        () => this.place_strawberry(),
+        "#EF2F86",
     );
 
     this.key_triggered_button(
-      "Candle",
-      ["c"],
-      () => this.place_candle(),
-      "#4758ca",
+        "Blueberry",
+        ["t"],
+        () => this.place_blueberry(),
+        "#4f86f7",
     );
 
     this.key_triggered_button(
-      "Light/Unlight Candles",
-      ["u"],
-      () => (this.light_candles = !this.light_candles),
-      "#eca202",
+      "Sprinkles", ["o"], () => this.start_sprinkles(), "#FFD700"
     );
 
     this.key_triggered_button(
-      "Remove all toppings",
-      ["d"],
-      () => this.remove_all_toppings(),
-      "#1fa88f",
+        "Candle",
+        ["c"],
+        () => this.place_candle(),
+        "#4758ca",
+    );
+
+    this.key_triggered_button(
+        "Light/Unlight Candles",
+        ["u"],
+        () => (this.light_candles = !this.light_candles),
+        "#eca202",
+    );
+
+    this.key_triggered_button(
+        "Remove all toppings",
+        ["d"],
+        () => this.remove_all_toppings(),
+        "#1fa88f",
     );
 
     this.key_triggered_button(
         "Done!",
         ["Enter"],
-        () => this.start_confetti(),
-        "#1fa88f"
+        () => {
+          if (this.elements.baking_done) {
+            this.start_confetti();
+          }
+        },
+        "#006400",
     );
   }
 
-
   start_confetti() {
-    this.elements.confetti_active = true;
-    for (let i = 0; i < 100; i++) {
-      this.elements.confetti.push({
-        position: vec3(Math.random() * 20 - 10, Math.random() * 20, Math.random() * 20 -10),
-        velocity: vec3(Math.random() * 2 - 1, Math.random() * -5, Math.random() * 2 - 1),
-        color: color(Math.random(), Math.random(), Math.random(), 1)
-      });
+    if (this.elements.baking_done){
+      this.elements.confetti_active = true;
+      for (let i = 0; i < 300; i++) {
+        this.elements.confetti.push({
+          position: vec3(Math.random() * 20 - 10, Math.random() * 20, Math.random() * 20 -10),
+          velocity: vec3(Math.random() * 2 - 1, Math.random() * -5, Math.random() * 2 - 1),
+          color: color(Math.random(), Math.random(), Math.random(), 1)
+        });
+      }
     }
   }
 
@@ -441,6 +461,77 @@ export class Assignment2 extends Base_Scene {
   }
 
 
+  start_sprinkles() {
+    if (this.elements.baking_done){
+      this.elements.sprinkles_active = true;
+      const cake_radius = this.layer_count === 3 ? 2.8 : (this.layer_count === 2 ? 3 : 4);
+      for (let i = 0; i < 200; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = Math.random() * cake_radius;
+        const x = radius * Math.cos(angle) - 5;
+        const z = radius * Math.sin(angle) + 4.5;
+        const y = Math.random() * 2 + 10;
+
+        let layer_height;
+        if (this.layer_count === 2) {
+          layer_height = this.layer_height * this.layer_count + 6.5 + this.layer_height;
+        }
+        else if (this.layer_count === 3) {
+          layer_height = this.layer_height * this.layer_count + 6.5 + 2 * this.layer_height;
+        }
+        else{
+          layer_height = this.layer_height * this.layer_count + 6.5;
+        }
+
+        this.elements.sprinkles.push({
+          position: vec3(x, y, z),
+          velocity: vec3(0, -1, 0),
+          color: color(Math.random(), Math.random(), Math.random(), 1),
+          layer_height: layer_height
+        });
+      }
+    }
+  }
+
+
+  update_sprinkles(program_state) {
+    if (!this.elements.sprinkles_active) return;
+
+    const gravity = vec3(0, -0.1, 0);
+    const delta_time = program_state.animation_delta_time / 1000;
+
+    for (let sprinkle of this.elements.sprinkles) {
+      if (sprinkle.position[1] > sprinkle.layer_height) {
+        sprinkle.velocity = sprinkle.velocity.plus(gravity.times(delta_time));
+        sprinkle.position = sprinkle.position.plus(sprinkle.velocity.times(delta_time));
+      }
+      else {
+        sprinkle.velocity = vec3(0, 0, 0);
+        sprinkle.position[1] = sprinkle.layer_height;
+      }
+    }
+
+    const table_height = 1.5;
+    this.elements.sprinkles = this.elements.sprinkles.filter(sprinkle => sprinkle.position[1] > table_height);
+  }
+
+  draw_sprinkles(context, program_state) {
+    if (!this.elements.sprinkles_active) return;
+
+    this.update_sprinkles(program_state);
+
+    for (let sprinkle of this.elements.sprinkles) {
+      let sprinkle_transform = Mat4.translation(...sprinkle.position).times(Mat4.scale(0.1, 0.1, 0.1));
+      this.elements.shapes.sprinkles.draw(
+          context,
+          program_state,
+          sprinkle_transform,
+          this.elements.materials.sprinkles.override({ color: sprinkle.color})
+      );
+    }
+  }
+
+
   remove_toppings_from_layer(layer) {
     this.cherries = this.cherries.filter(
       (cherry) => cherry.y < this.layer_height * layer + 6.5,
@@ -454,6 +545,9 @@ export class Assignment2 extends Base_Scene {
     this.candles = this.candles.filter(
       (candle) => candle.y < this.layer_height * layer + 6.5,
     );
+    this.elements.sprinkles = this.elements.sprinkles.filter(
+        sprinkle => sprinkle.position[1] < this.layer_height * layer + 6.5,
+    );
   }
 
   remove_all_toppings() {
@@ -461,6 +555,7 @@ export class Assignment2 extends Base_Scene {
     this.strawberries = [];
     this.blueberries = [];
     this.candles = [];
+    this.elements.sprinkles = [];
   }
   change_layer_count(change) {
     if (this.elements.baking_done) {
@@ -1115,7 +1210,7 @@ export class Assignment2 extends Base_Scene {
     if (this.elements.baking_start_time !== null) {
       const total_time =
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
-      if (total_time > 10) {
+      if (total_time > 2) {
         this.elements.baking_done = true;
         this.elements.baking_end_time = program_state.animation_time;
       }
@@ -1129,7 +1224,7 @@ export class Assignment2 extends Base_Scene {
       model_transform = this.remove_coals(model_transform);
 
       program_state.set_camera(
-        Mat4.look_at(vec3(-5, 15, 18), vec3(-5, 6, 4), vec3(0, 1, 0)),
+        Mat4.look_at(vec3(-5, 15, 20), vec3(-5, 6, 4), vec3(0, 1, 0)),
       );
 
       //Draws the plate
@@ -1146,6 +1241,8 @@ export class Assignment2 extends Base_Scene {
       }
 
       this.draw_confetti(context, program_state, model_transform);
+      this.draw_sprinkles(context, program_state);
+
     } else {
       this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
