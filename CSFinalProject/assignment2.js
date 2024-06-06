@@ -41,6 +41,7 @@ export class Elements extends Scene {
       flame: new defs.Rounded_Closed_Cone(3, 4),
       table: new defs.Square(),
       table_back: new defs.Square(),
+      confetti: new defs.Capped_Cylinder(10, 10),
     };
 
     this.materials = {
@@ -61,13 +62,7 @@ export class Elements extends Scene {
         color: hex_color("#000000"),
         ambient: 1,
         diffusivity: 0.1,
-        texture: new Texture("assets/table.png"),
-      }),
-      tableback: new Material(new Textured_Phong(), {
-        color: hex_color("#000000"),
-        ambient: 1,
-        diffusivity: 0.1,
-        texture: new Texture("assets/marbles2.png"),
+        texture: new Texture("assets/marbles.png"),
       }),
 
       ovenrack: new Material(new defs.Phong_Shader(), {
@@ -123,23 +118,23 @@ export class Elements extends Scene {
       //   diffusivity: 1,
       //   color: hex_color("#ffffff"),
       // }),
-
-      flame: new Material(new defs.Textured_Phong(), {
-        ambient: 1,
-        color: hex_color("#000000"),
-        texture: new Texture("assets/flames.png", "NEAREST"),
-      }),
-
       wick: new Material(new defs.Textured_Phong(), {
         ambient: 1,
         color: hex_color("#ffffff"),
         texture: new Texture("assets/wick.png", "NEAREST"),
       }),
-      // flame: new Material(new defs.Phong_Shader(), {
-      //   ambient: 0,
-      //   diffusivity: 1,
-      //   color: hex_color("#ff8037"),
-      // }),
+      flame: new Material(new defs.Phong_Shader(), {
+        ambient: 0,
+        diffusivity: 1,
+        color: hex_color("#ff8037"),
+      }),
+
+      confetti: new Material(new defs.Phong_Shader(), {
+        ambient: 1,
+        diffusivity: 1,
+        specularity: 0,
+        color: hex_color("#ff69b4")
+      }),
     };
 
     // Cake Parameters
@@ -176,6 +171,9 @@ export class Elements extends Scene {
 
     this.chocolate_clicked = false;
     this.chocolate_displayed = false;
+
+    this.confetti = [];
+    this.confetti_active = false;
   }
 }
 
@@ -390,7 +388,58 @@ export class Assignment2 extends Base_Scene {
       () => this.remove_all_toppings(),
       "#1fa88f",
     );
+
+    this.key_triggered_button(
+        "Done!",
+        ["Enter"],
+        () => this.start_confetti(),
+        "#1fa88f"
+    );
   }
+
+
+  start_confetti() {
+    this.elements.confetti_active = true;
+    for (let i = 0; i < 100; i++) {
+      this.elements.confetti.push({
+        position: vec3(Math.random() * 20 - 10, Math.random() * 20, Math.random() * 20 -10),
+        velocity: vec3(Math.random() * 2 - 1, Math.random() * -5, Math.random() * 2 - 1),
+        color: color(Math.random(), Math.random(), Math.random(), 1)
+      });
+    }
+  }
+
+  draw_confetti(context, program_state) {
+    if (!this.elements.confetti_active) return;
+
+    const gravity = vec3(0, -0.1, 0);
+    const table_height = 1.5;
+    const second_layer_top = this.layer_height * 2 + 6.5;
+    const third_layer_top = this.layer_height * 3 + 6.5;
+    const plate_height = 2;
+
+    for (let particle of this.elements.confetti) {
+      particle.velocity = particle.velocity.plus(gravity.times(program_state.animation_delta_time / 1000));
+      particle.position = particle.position.plus(particle.velocity.times(program_state.animation_delta_time / 1000));
+
+      let confetti_transform = Mat4.translation(...particle.position)
+          .times(Mat4.scale(0.2, 0.2, 0.2));
+      this.elements.shapes.confetti.draw(
+          context,
+          program_state,
+          confetti_transform,
+          this.elements.materials.confetti.override({ color: particle.color })
+      );
+    }
+
+    this.elements.confetti = this.elements.confetti.filter(p => {
+      return p.position[1] > table_height &&
+          p.position[1] > plate_height &&
+          !(p.position[1] <= second_layer_top && p.position[1] >= second_layer_top - 0.2) &&
+          !(p.position[1] <= third_layer_top && p.position[1] >= third_layer_top - 0.2);
+    });
+  }
+
 
   remove_toppings_from_layer(layer) {
     this.cherries = this.cherries.filter(
@@ -740,12 +789,11 @@ export class Assignment2 extends Base_Scene {
       this.elements.baking_start_time = program_state.animation_time;
     }
   }
-
   draw_table(context, program_state, model_transform) {
     let table_top_transform = model_transform
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
       .times(Mat4.translation(-5, -5, 0))
-      .times(Mat4.scale(100, 20, 0.2));
+      .times(Mat4.scale(30, 20, 0.2));
 
     this.elements.shapes.table.draw(
       context,
@@ -756,26 +804,16 @@ export class Assignment2 extends Base_Scene {
   }
 
   draw_tableback(context, program_state, model_transform) {
-    let table_back_transform = model_transform.times(
-      Mat4.translation(0, 18, -20),
-    ); // Pushing the square back
-
-    table_back_transform = table_back_transform
-      .times(Mat4.rotation(Math.PI, 1, 0, 0))
-      .times(Mat4.translation(15, 91, 2))
-      .times(Mat4.scale(100, 100, 100));
-     
-
-    // let table_back_transform = model_transform
-    //   .times(Mat4.rotation(Math.PI , 1, 0, 0))
-    //   .times(Mat4.translation(-5, -25, -0.4))
-    //   .times(Mat4.scale(50, 2, 50));
+    let table_back_transform = model_transform
+      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
+      .times(Mat4.translation(-5, -25, -0.4))
+      .times(Mat4.scale(50, 2, 50));
 
     this.elements.shapes.table.draw(
       context,
       program_state,
       table_back_transform,
-      this.elements.materials.tableback,
+      this.elements.materials.table,
     );
   }
 
@@ -968,36 +1006,24 @@ export class Assignment2 extends Base_Scene {
 
         // var colorVal = (1 + Math.sin(((0.3 * Math.PI) / 10) * t)) / 2;
         // var flameColor = color(1, colorVal - 0.4, 0, Math.max(colorVal, 0.7));
-        // let rgb = (1 + Math.sin(((2 * Math.PI) / 10) * t)) / 2;
-        // var sun_color = color(1, rgb, rgb, 1);
+    // let rgb = (1 + Math.sin(((2 * Math.PI) / 10) * t)) / 2;
+    // var sun_color = color(1, rgb, rgb, 1);
 
-        // let r = 0.7 + 0.1 * Math.sin(((2 * Math.PI) / 10)  * t); // Red varies from 0.9 to 1
-        // let g = 0.3 + 0.2 * Math.sin(((2 * Math.PI) / 10)  * t); // Green varies from 0.3 to 0.5
-        // var flameColor = color(r, g, 0, 1); // Blue is 0, Alpha is 1
 
-        // const flame_transform = model_transform
-        //   .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z))
-        //   .times(Mat4.translation(0, 0.3, 0))
-        //   .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        //   .times(Mat4.rotation(angle, 0, 1, 0))
-        //   .times(Mat4.scale(0.2, 0.2, 0.3));
+        let r = 0.7 + 0.1 * Math.sin(((2 * Math.PI) / 10)  * t); // Red varies from 0.9 to 1
+        let g = 0.3 + 0.2 * Math.sin(((2 * Math.PI) / 10)  * t); // Green varies from 0.3 to 0.5
+        var flameColor = color(r, g, 0, 1); // Blue is 0, Alpha is 1
 
         const flame_transform = model_transform
-          .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z)) // Position the flame above the candle
-          .times(Mat4.translation(0, 0, -0.3)) // Move the origin to the bottom of the flame
+          .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z))
           .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-          .times(Mat4.rotation(angle, 0, 1, 0)) // Apply the sway rotation
-          .times(Mat4.translation(0, -0.15, 0.15)) // Move the origin back
-          .times(Mat4.scale(0.2, 0.2, 0.25)) // Scale the flame to its intended size
-          .times(Mat4.translation(0, -0.7, -0.6)); // Move the origin back
-
-        // this.elements.materials.flame.override({ color: flameColor }),
-
+          .times(Mat4.rotation(angle, 0, 1, 0))
+          .times(Mat4.scale(0.2, 0.2, 0.3));
         this.elements.shapes.flame.draw(
           context,
           program_state,
           flame_transform,
-          this.elements.materials.flame,
+          this.elements.materials.flame.override({ color: flameColor }),
         );
       }
     }
@@ -1089,7 +1115,7 @@ export class Assignment2 extends Base_Scene {
     if (this.elements.baking_start_time !== null) {
       const total_time =
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
-      if (total_time > 8) {
+      if (total_time > 10) {
         this.elements.baking_done = true;
         this.elements.baking_end_time = program_state.animation_time;
       }
@@ -1114,6 +1140,12 @@ export class Assignment2 extends Base_Scene {
           .times(Mat4.translation(0, 2, 0))
           .times(Mat4.scale(5, 0.2, 5)),
       );
+
+      if (this.elements.confetti_active) {
+        console.log("Drawing confetti...");
+      }
+
+      this.draw_confetti(context, program_state, model_transform);
     } else {
       this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
