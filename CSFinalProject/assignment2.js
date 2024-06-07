@@ -106,7 +106,7 @@ export class Elements extends Scene {
       cake: new Material(new defs.Phong_Shader(), {
         ambient: 0.4,
         diffusivity: 1,
-        color: hex_color("#faf3eb"),
+        color: hex_color("#fbebd3"),
       }),
 
       pan: new Material(new defs.Phong_Shader(), {
@@ -183,7 +183,7 @@ export class Elements extends Scene {
     this.raw_batter_color = hex_color("#faf3eb");
     this.baked_cake_color = hex_color("#8B4513");
 
-    //Used for transitioning from the batter scene to the oven scene
+    // Used for transitioning from the batter scene to the oven scene
     this.red_velvet_clicked = false;
     this.red_velvet_displayed = false;
 
@@ -885,63 +885,64 @@ export class Assignment2 extends Base_Scene {
     //   this.elements.baking_start_time = program_state.animation_time;
     // }
     let batter_transform = model_transform
-      .times(Mat4.translation(-5, 6, 4))
-      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)); // Rotate to make flat
+        .times(Mat4.translation(-5, 6, 4))
+        .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)); // Rotate to make flat
 
     const t = program_state.animation_time / 1000;
     const duration = 10;
     const max_height = 5;
     const batter_height = Math.min(max_height * (t / duration), max_height);
     let batter_rise_transform = batter_transform.times(
-      Mat4.scale(5, batter_height, 2),
+        Mat4.scale(5, batter_height, 2),
     );
 
     let pan_transform = model_transform
-      .times(Mat4.translation(-5, 6.5, 4))
-      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
-      .times(Mat4.scale(5.2, 5, 3));
+        .times(Mat4.translation(-5, 6.5, 4))
+        .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
+        .times(Mat4.scale(5.2, 5, 3));
 
     let pan_bottom_transform = model_transform
-      .times(Mat4.translation(-5, 5, 4))
-      .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
-      .times(Mat4.scale(5.2, 5.2, 0.1));
+        .times(Mat4.translation(-5, 5, 4))
+        .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
+        .times(Mat4.scale(5.2, 5.2, 0.1));
 
     this.elements.shapes.cake.draw(
-      context,
-      program_state,
-      batter_rise_transform,
-      this.elements.materials.cake.override({ color: this.layer_color }),
+        context,
+        program_state,
+        batter_rise_transform,
+        this.elements.materials.cake.override({ color: this.layer_color }),
     );
     this.elements.shapes.cake.draw(
-      context,
-      program_state,
-      pan_bottom_transform,
-      this.elements.materials.cake.override({ color: hex_color("#808080") }),
+        context,
+        program_state,
+        pan_bottom_transform,
+        this.elements.materials.cake.override({ color: hex_color("#808080") }),
     );
     this.elements.shapes.pan.draw(
-      context,
-      program_state,
-      pan_transform,
-      this.elements.materials.pan.override({ color: hex_color("#808080") }),
+        context,
+        program_state,
+        pan_transform,
+        this.elements.materials.pan.override({ color: hex_color("#808080") }),
     );
   }
 
   draw_cake(context, program_state, model_transform) {
     for (let i = 0; i < this.layer_count; i++) {
       let cake_transform = model_transform
-        .times(Mat4.translation(-5, 6 + i, 4))
-        .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
-        .times(Mat4.scale(5 - i, 5 + -i, 2));
+          .times(Mat4.translation(-5, 6 + i, 4))
+          .times(Mat4.rotation(Math.PI / 2, 1, 0, 0)) // Rotate to make flat
+          .times(Mat4.scale(5 - i, 5 + -i, 2));
 
       this.elements.shapes.cake.draw(
-        context,
-        program_state,
-        cake_transform,
-        this.elements.materials.cake.override({ color: this.layer_color }),
+          context,
+          program_state,
+          cake_transform,
+          //this.elements.materials.baked_cake,
+          this.elements.materials.cake.override({ color: this.layer_color }),
       );
 
       model_transform = model_transform.times(
-        Mat4.translation(0, this.layer_height, 0),
+          Mat4.translation(0, this.layer_height, 0),
       );
     }
 
@@ -955,7 +956,7 @@ export class Assignment2 extends Base_Scene {
     let table_top_transform = model_transform
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
       .times(Mat4.translation(-5, -5, 0))
-      .times(Mat4.scale(100, 20, 0.2));
+      .times(Mat4.scale(30, 20, 0.2));
 
     this.elements.shapes.table.draw(
       context,
@@ -966,27 +967,19 @@ export class Assignment2 extends Base_Scene {
   }
 
   draw_tableback(context, program_state, model_transform) {
-    let table_back_transform = model_transform.times(
-      Mat4.translation(0, 18, -20),
-    ); // Pushing the square back
-
-    table_back_transform = table_back_transform
-      .times(Mat4.rotation(Math.PI, 1, 0, 0))
-      .times(Mat4.translation(15, 91, 2))
-      .times(Mat4.scale(100, 100, 100));
-
-    // let table_back_transform = model_transform
-    //   .times(Mat4.rotation(Math.PI , 1, 0, 0))
-    //   .times(Mat4.translation(-5, -25, -0.4))
-    //   .times(Mat4.scale(50, 2, 50));
+    let table_back_transform = model_transform
+      .times(Mat4.rotation(Math.PI/2, 1, 0, 0))
+      .times(Mat4.translation(-5, -25, -0.4))
+      .times(Mat4.scale(50, 2, 50));
 
     this.elements.shapes.table.draw(
       context,
       program_state,
       table_back_transform,
-      this.elements.materials.tableback,
+      this.elements.materials.table,
     );
   }
+
   // draw_tableback(context, program_state, model_transform) {
   //   // Adjust translation and scaling to position the back correctly relative to the table top
   //   let back_transform = model_transform
@@ -1098,108 +1091,6 @@ export class Assignment2 extends Base_Scene {
   //   }
   // }
 
-  draw_toppings(context, program_state, model_transform) {
-    for (let cherry of this.cherries) {
-      const cherry_transform = model_transform
-        .times(Mat4.translation(cherry.x, cherry.y, cherry.z))
-        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        .times(Mat4.scale(0.5, 0.5, 0.5));
-
-      this.elements.shapes.cherry.draw(
-        context,
-        program_state,
-        cherry_transform,
-        this.elements.materials.cherry,
-      );
-    }
-
-    for (let strawberry of this.strawberries) {
-      const strawberry_transform = model_transform
-        .times(Mat4.translation(strawberry.x, strawberry.y, strawberry.z))
-        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        .times(Mat4.scale(0.5, 0.5, 0.5));
-
-      this.elements.shapes.strawberry.draw(
-        context,
-        program_state,
-        strawberry_transform,
-        this.elements.materials.strawberry,
-      );
-    }
-
-    for (let blueberry of this.blueberries) {
-      const blueberry_transform = model_transform
-        .times(Mat4.translation(blueberry.x, blueberry.y, blueberry.z))
-        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        .times(Mat4.scale(0.25, 0.25, 0.25));
-
-      this.elements.shapes.blueberry.draw(
-        context,
-        program_state,
-        blueberry_transform,
-        this.elements.materials.blueberry,
-      );
-    }
-
-    for (let candle of this.candles) {
-      const candle_transform = model_transform
-        .times(Mat4.translation(candle.x, candle.y, candle.z))
-        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        .times(Mat4.scale(0.2, 0.2, 1.3));
-
-      const wick_transform = candle_transform.times(Mat4.scale(0.2, 0.1, 1.3));
-      this.elements.shapes.candle.draw(
-        context,
-        program_state,
-        candle_transform,
-        this.elements.materials.candle,
-      );
-      this.elements.shapes.wick.draw(
-        context,
-        program_state,
-        wick_transform,
-        this.elements.materials.wick,
-      );
-
-      if (this.light_candles) {
-        let angle =
-          ((0.25 * Math.PI) / 4) *
-          Math.sin((Math.PI * program_state.animation_time) / 1000);
-        // const flame_transform = model_transform
-        //   .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z))
-        //   .times(Mat4.translation(0, 0.3, 0))
-        //   .times(Mat4.rotation(angle, 0, 1, 0))
-        //   .times(Mat4.translation(0, -0.3, 0))
-        //   .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        //   .times(Mat4.scale(0.2, 0.2, 0.3));
-        const t = program_state.animation_time / 1000;
-
-        // var colorVal = (1 + Math.sin(((0.3 * Math.PI) / 10) * t)) / 2;
-        // var flameColor = color(1, colorVal - 0.4, 0, Math.max(colorVal, 0.7));
-        // let rgb = (1 + Math.sin(((2 * Math.PI) / 10) * t)) / 2;
-        // var sun_color = color(1, rgb, rgb, 1);
-
-        const flame_transform = model_transform
-          .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z)) // Position the flame above the candle
-          .times(Mat4.translation(0, 0, -0.3)) // Move the origin to the bottom of the flame
-          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-          .times(Mat4.rotation(angle, 0, 1, 0)) // Apply the sway rotation
-          .times(Mat4.translation(0, -0.15, 0.15)) // Move the origin back
-          .times(Mat4.scale(0.2, 0.2, 0.25)) // Scale the flame to its intended size
-          .times(Mat4.translation(0, -0.8, -0.6)); // Move the origin back
-
-        // this.elements.materials.flame.override({ color: flameColor }),
-
-        this.elements.shapes.flame.draw(
-          context,
-          program_state,
-          flame_transform,
-          this.elements.materials.flame,
-        );
-      }
-    }
-  }
-
   remove_coals(model_transform) {
     const new_model_transform = model_transform.times(
       Mat4.translation(0, -1000, 0),
@@ -1284,15 +1175,9 @@ export class Assignment2 extends Base_Scene {
 
     //Time for baking is set to 10 seconds
     if (this.elements.baking_start_time !== null) {
-      if (this.done != true && this.cutesie) {
-        songs[1].play();
-      } else {
-        songs[1].pause();
-      }
-
       const total_time =
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
-      if (total_time > 10) {
+      if (total_time > 2) {
         this.elements.baking_done = true;
         this.elements.baking_end_time = program_state.animation_time;
       }
@@ -1306,7 +1191,7 @@ export class Assignment2 extends Base_Scene {
       model_transform = this.remove_coals(model_transform);
 
       program_state.set_camera(
-        Mat4.look_at(vec3(-5, 15, 20), vec3(-5, 6, 4), vec3(0, 1, 0)),
+        Mat4.look_at(vec3(-5, 15, 18), vec3(-5, 6, 4), vec3(0, 1, 0)),
       );
 
       //Draws the plate
@@ -1317,13 +1202,6 @@ export class Assignment2 extends Base_Scene {
           .times(Mat4.translation(0, 2, 0))
           .times(Mat4.scale(5, 0.2, 5)),
       );
-
-      if (this.elements.confetti_active) {
-        console.log("Drawing confetti...");
-      }
-
-      this.draw_confetti(context, program_state, model_transform);
-      this.draw_sprinkles(context, program_state);
     } else {
       this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
@@ -1454,36 +1332,8 @@ class Cube extends Shape {
     );
     // Arrange the vertices into a square shape in texture space too:
     this.indices.push(
-      0,
-      1,
-      2,
-      1,
-      3,
-      2,
-      4,
-      5,
-      6,
-      5,
-      7,
-      6,
-      8,
-      9,
-      10,
-      9,
-      11,
-      10,
-      12,
-      13,
-      14,
-      13,
-      15,
-      14,
-      20,
-      21,
-      22,
-      21,
-      23,
-      22,
+        0, 1, 2, 1, 3, 2, 4, 5, 6, 5, 7, 6, 8, 9, 10, 9, 11, 10, 12, 13, 14, 13, 15, 14, 20, 21, 22, 21, 23, 22
     );
   }
 }
+
