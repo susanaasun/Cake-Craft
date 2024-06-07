@@ -428,6 +428,8 @@ export class Assignment2 extends Base_Scene {
       () => {
         if (this.elements.baking_done) {
           this.start_confetti();
+          document.getElementById('audio').play();
+
         }
       },
       "#006400",
