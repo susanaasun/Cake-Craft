@@ -1258,6 +1258,14 @@ export class Assignment2 extends Base_Scene {
           .times(Mat4.translation(0, 2, 0))
           .times(Mat4.scale(5, 0.2, 5)),
       );
+
+      if (this.elements.confetti_active) {
+        console.log("Drawing confetti...");
+      }
+
+      this.draw_confetti(context, program_state, model_transform);
+      this.draw_sprinkles(context, program_state);
+      
     } else {
       this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
