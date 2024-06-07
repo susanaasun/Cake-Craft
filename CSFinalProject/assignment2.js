@@ -559,7 +559,7 @@ export class Assignment2 extends Base_Scene {
         );
       } else {
         sprinkle.velocity = vec3(0, 0, 0);
-        sprinkle.position[1] = sprinkle.layer_height;
+        sprinkle.position[1] = sprinkle.layer_height - 0.4;
       }
     }
 
