@@ -856,7 +856,7 @@ export class Assignment2 extends Base_Scene {
     const t = program_state.animation_time / 1000;
     var colorVal = (1 + Math.sin(((0.3 * Math.PI) / 10) * t)) / 2;
     var coalColor = color(1, colorVal - 0.4, 0, Math.max(colorVal, 0.7));
-    //const wiggle_angle= 0.1 * Math.sin(0.01 * Math.PI * t);
+
     for (let i = 0; i < coal_rows; i++) {
       for (let j = 0; j < coal_cols; j++) {
         const frequency = 0.5;
