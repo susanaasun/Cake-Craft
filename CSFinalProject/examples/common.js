@@ -399,9 +399,11 @@ const Rounded_Closed_Cone = defs.Rounded_Closed_Cone =
 const Capped_Cylinder = defs.Capped_Cylinder =
     class Capped_Cylinder extends Shape {
         // Combine a tube and two regular polygons to make a closed cylinder.
+
         constructor(rows, columns, texture_range) {
             // Flat shade this to make a prism, where #columns = #sides.
             super("position", "normal", "texture_coord");
+
             Cylindrical_Tube.insert_transformed_copy_into(this, [rows, columns, texture_range]);
             Regular_2D_Polygon.insert_transformed_copy_into(this, [1, columns], Mat4.translation(0, 0, .5));
             Regular_2D_Polygon.insert_transformed_copy_into(this, [1, columns], Mat4.rotation(Math.PI, 0, 1, 0).times(Mat4.translation(0, 0, .5)));
