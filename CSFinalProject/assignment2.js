@@ -85,22 +85,22 @@ export class Elements extends Scene {
         color: hex_color("#D3D3D3"),
       }),
 
-      cherry: new Material(new defs.Phong_Shader(), {
-        ambient: 0.4,
-        diffusivity: 1,
-        color: hex_color("#B62625"),
+      cherry: new Material(new defs.Textured_Phong(), {
+        ambient: 1,
+        color: hex_color("#000000"),
+        texture: new Texture("assets/cherryskin.png", "NEAREST")
       }),
 
-      strawberry: new Material(new defs.Phong_Shader(), {
-        ambient: 0.4,
-        diffusivity: 1,
-        color: hex_color("#C54644"),
+      strawberry: new Material(new defs.Textured_Phong(), {
+        ambient: 1,
+        color: hex_color("#000000"),
+        texture: new Texture("assets/strawberryskin.png", "NEAREST")
       }),
 
-      blueberry: new Material(new defs.Phong_Shader(), {
-        ambient: 0.4,
-        diffusivity: 1,
-        color: hex_color("#4f86f7"),
+      blueberry: new Material(new defs.Textured_Phong(), {
+        ambient: 1,
+        color: hex_color("#000000"),
+        texture: new Texture("assets/blueberryskin.png", "NEAREST")
       }),
 
       cake: new Material(new defs.Phong_Shader(), {
