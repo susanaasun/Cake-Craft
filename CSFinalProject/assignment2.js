@@ -600,7 +600,7 @@ export class Assignment2 extends Base_Scene {
       (candle) => candle.y != layer_y_position,
     );
     this.elements.sprinkles = this.elements.sprinkles.filter(
-      (sprinkle) => sprinkle.position[1] != layer_y_position,
+      (sprinkle) => sprinkle.position[1] < layer_y_position,
     );
   }
 
@@ -1247,7 +1247,7 @@ export class Assignment2 extends Base_Scene {
       model_transform = this.remove_coals(model_transform);
 
       program_state.set_camera(
-        Mat4.look_at(vec3(-5, 15, 18), vec3(-5, 6, 4), vec3(0, 1, 0)),
+        Mat4.look_at(vec3(-5, 15, 20), vec3(-5, 6, 4), vec3(0, 1, 0)),
       );
 
       //Draws the plate
