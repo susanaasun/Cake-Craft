@@ -241,7 +241,7 @@ class Base_Scene extends Scene {
   }
 }
 
-export class Assignment2 extends Base_Scene {
+export class CakeCraft extends Base_Scene {
   constructor() {
     super();
     this.elements = new Elements();
@@ -768,7 +768,7 @@ export class Assignment2 extends Base_Scene {
       const cherry_transform = model_transform
         .times(Mat4.translation(cherry.x, cherry.y, cherry.z))
         .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        .times(Mat4.scale(0.5, 0.5, 0.5));
+        .times(Mat4.scale(0.4, 0.4, 0.4));
 
       this.elements.shapes.cherry.draw(
         context,
@@ -783,7 +783,7 @@ export class Assignment2 extends Base_Scene {
       const strawberry_transform = model_transform
         .times(Mat4.translation(strawberry.x, strawberry.y, strawberry.z))
         .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        .times(Mat4.scale(0.4, 0.4, 0.4));
+        .times(Mat4.scale(0.3, 0.3, 0.3));
 
       this.elements.shapes.strawberry.draw(
         context,
@@ -1269,3 +1269,5 @@ class Cube extends Shape {
     );
   }
 }
+
+
