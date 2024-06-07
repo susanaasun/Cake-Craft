@@ -1103,6 +1103,21 @@ export class Assignment2 extends Base_Scene {
     super.display(context, program_state);
     let model_transform = Mat4.identity();
 
+    if (this.light_candles) {
+      program_state.lights = [
+        new Light(vec4(5, 5, -10, 1), color(1.5, 1.5, 1.5, 1), 1500),
+        new Light(vec4(0, 10, 15, 1), color(1.5, 1.5, 1.5, 1), 9000),
+        new Light(vec4(0, 0, 0, 1), color(1.5, 1.5, 1.5, 1), 1500),
+      ];
+    } else {
+      program_state.lights = [
+        new Light(vec4(5, 5, -10, 1), color(1, 1, 1, 1), 1000),
+        new Light(vec4(0, 10, 15, 1), color(1, 1, 1, 1), 6000),
+        new Light(vec4(0, 0, 0, 1), color(1, 1, 1, 1), 1000),
+      ];
+    }
+
+
     this.draw_toppings(context, program_state, model_transform);
     this.draw_pan(context, program_state, model_transform);
 
