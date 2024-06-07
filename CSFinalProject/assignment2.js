@@ -618,13 +618,14 @@ export class Assignment2 extends Base_Scene {
   }
 
   change_layer_count(change) {
-    if (this.elements.baking_done) {
-      const new_layer_count = Math.max(1, this.layer_count + change);
-      if (change < 0 && this.layer_count > new_layer_count) {
-        this.remove_toppings_from_layer(this.layer_count);
-      }
+    const new_layer_count = Math.max(1, this.layer_count + change);
+    if (change < 0 && this.layer_count > new_layer_count) {
+      this.remove_toppings_from_layer(this.layer_count);
+    } else if (change > 0) {
       this.layer_count = new_layer_count;
+      this.adjust_toppings_to_previous_layer();
     }
+    this.layer_count = new_layer_count;
   }
 
   place_cherry() {
