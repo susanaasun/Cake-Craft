@@ -43,18 +43,42 @@ const Square = defs.Square =
         // interior edges don't make any important seams.  In these cases there's no reason not
         // to re-use data of the common vertices between triangles.  This makes all the vertex
         // arrays (position, normals, etc) smaller and more cache friendly.
-        constructor() {
+        constructor(texture_coords = [vec(0, 0), vec(1, 0), vec(0, 1), vec(1, 1)]) {
             super("position", "normal", "texture_coord");
             // Specify the 4 square corner locations, and match those up with normal vectors:
             this.arrays.position = Vector3.cast([-1, -1, 0], [1, -1, 0], [-1, 1, 0], [1, 1, 0]);
             this.arrays.normal = Vector3.cast([0, 0, 1], [0, 0, 1], [0, 0, 1], [0, 0, 1]);
             // Arrange the vertices into a square shape in texture space too:
-            this.arrays.texture_coord = Vector.cast([0, 0], [1, 0], [0, 1], [1, 1]);
+            this.arrays.texture_coord = texture_coords;
             // Use two triangles this time, indexing into four distinct vertices:
             this.indices.push(0, 1, 2, 1, 3, 2);
         }
     }
 
+const Cube = defs.Cube =
+    class Cube extends Shape {
+        // **Cube** A closed 3D shape, and the first example of a compound shape (a Shape constructed
+        // out of other Shapes).  A cube inserts six Square strips into its own arrays, using six
+        // different matrices as offsets for each square.
+        constructor(zoom_out = false) {
+            super("position", "normal", "texture_coord");
+
+            const texture_coords = zoom_out
+                ? [vec(0, 0), vec(2, 0), vec(0, 2), vec(2, 2)]
+                : [vec(0, 0), vec(1, 0), vec(0, 1), vec(1, 1)];
+
+            // Loop 3 times (for each axis), and inside loop twice (for opposing cube sides):
+            for (let i = 0; i < 3; i++)
+                for (let j = 0; j < 2; j++) {
+                    const square_transform = Mat4.rotation(i == 0 ? Math.PI / 2 : 0, 1, 0, 0)
+                        .times(Mat4.rotation(Math.PI * j - (i == 1 ? Math.PI / 2 : 0), 0, 1, 0))
+                        .times(Mat4.translation(0, 0, 1));
+
+                    // Shape (this one) at the specified matrix offset (square_transform):
+                    Square.insert_transformed_copy_into(this, [texture_coords], square_transform);
+                }
+        }
+    }
 
 const Tetrahedron = defs.Tetrahedron =
     class Tetrahedron extends Shape {
@@ -131,27 +155,6 @@ const Windmill = defs.Windmill =
                 // Procedurally connect the 3 new vertices into triangles:
                 this.indices.push(3 * i, 3 * i + 1, 3 * i + 2);
             }
-        }
-    }
-
-
-const Cube = defs.Cube =
-    class Cube extends Shape {
-        // **Cube** A closed 3D shape, and the first example of a compound shape (a Shape constructed
-        // out of other Shapes).  A cube inserts six Square strips into its own arrays, using six
-        // different matrices as offsets for each square.
-        constructor() {
-            super("position", "normal", "texture_coord");
-            // Loop 3 times (for each axis), and inside loop twice (for opposing cube sides):
-            for (let i = 0; i < 3; i++)
-                for (let j = 0; j < 2; j++) {
-                    const square_transform = Mat4.rotation(i == 0 ? Math.PI / 2 : 0, 1, 0, 0)
-                        .times(Mat4.rotation(Math.PI * j - (i == 1 ? Math.PI / 2 : 0), 0, 1, 0))
-                        .times(Mat4.translation(0, 0, 1));
-                    // Calling this function of a Square (or any Shape) copies it into the specified
-                    // Shape (this one) at the specified matrix offset (square_transform):
-                    Square.insert_transformed_copy_into(this, [], square_transform);
-                }
         }
     }
 
@@ -753,7 +756,8 @@ const Textured_Phong = defs.Textured_Phong =
             return this.shared_glsl_code() + `
                 varying vec2 f_tex_coord;
                 uniform sampler2D texture;
-        
+                uniform float animation_time;
+                
                 void main(){
                     // Sample the texture image in the correct place:
                     vec4 tex_color = texture2D( texture, f_tex_coord );
@@ -768,7 +772,8 @@ const Textured_Phong = defs.Textured_Phong =
         update_GPU(context, gpu_addresses, gpu_state, model_transform, material) {
             // update_GPU(): Add a little more to the base class's version of this method.
             super.update_GPU(context, gpu_addresses, gpu_state, model_transform, material);
-
+            // Updated for assignment 4
+            context.uniform1f(gpu_addresses.animation_time, gpu_state.animation_time / 1000);
             if (material.texture && material.texture.ready) {
                 // Select texture unit 0 for the fragment shader Sampler2D uniform called "texture":
                 context.uniform1i(gpu_addresses.texture, 0);

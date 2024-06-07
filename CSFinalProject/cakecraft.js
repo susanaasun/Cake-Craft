@@ -621,6 +621,7 @@ export class Assignment2 extends Base_Scene {
       ...this.strawberries,
       ...this.blueberries,
       ...this.candles,
+      ...this.elements.sprinkles,
     ]) {
       const distance_from_center = Math.sqrt(
         Math.pow(topping.x + 5, 2) + Math.pow(topping.z - 4, 2),
@@ -644,6 +645,7 @@ export class Assignment2 extends Base_Scene {
     }
     this.layer_count = new_layer_count;
   }
+
 
   // helper functions for collision detection
   distance(topping1, topping2) {
@@ -1172,7 +1174,7 @@ export class Assignment2 extends Base_Scene {
 
       this.draw_confetti(context, program_state, model_transform);
       this.draw_sprinkles(context, program_state);
-      
+
     } else {
       this.draw_cake_batter(context, program_state, model_transform);
       this.draw_oven(context, program_state, model_transform);
