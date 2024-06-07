@@ -603,6 +603,20 @@ export class Assignment2 extends Base_Scene {
     this.candles = [];
     this.elements.sprinkles = [];
   }
+
+  adjust_toppings_to_previous_layer() {
+    const previous_layer_radius = 5 - (this.layer_count - 1);
+    for (let topping of [...this.cherries, ...this.strawberries, ...this.blueberries, ...this.candles]) {
+      const distance_from_center = Math.sqrt(Math.pow(topping.x + 5, 2) + Math.pow(topping.z - 4, 2));
+      if (distance_from_center > previous_layer_radius) {
+        const angle = Math.atan2(topping.z - 4, topping.x + 5);
+        topping.x = previous_layer_radius * Math.cos(angle) - 5;
+        topping.z = previous_layer_radius * Math.sin(angle) + 4;
+        topping.y = (this.layer_count - 1) * this.layer_height + 6.5;
+      }
+    }
+  }
+
   change_layer_count(change) {
     if (this.elements.baking_done) {
       const new_layer_count = Math.max(1, this.layer_count + change);
