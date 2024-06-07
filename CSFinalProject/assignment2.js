@@ -586,20 +586,13 @@ export class Assignment2 extends Base_Scene {
   }
 
   remove_toppings_from_layer(layer) {
-    this.cherries = this.cherries.filter(
-      (cherry) => cherry.y < this.layer_height * layer + 6.5,
-    );
-    this.strawberries = this.strawberries.filter(
-      (strawberry) => strawberry.y < this.layer_height * layer + 6.5,
-    );
-    this.blueberries = this.blueberries.filter(
-      (blueberry) => blueberry.y < this.layer_height * layer + 6.5,
-    );
-    this.candles = this.candles.filter(
-      (candle) => candle.y < this.layer_height * layer + 6.5,
-    );
+    const layer_y_position = this.layer_height * layer + 6.5;
+    this.cherries = this.cherries.filter((cherry) => cherry.y != layer_y_position);
+    this.strawberries = this.strawberries.filter((strawberry) => strawberry.y != layer_y_position);
+    this.blueberries = this.blueberries.filter((blueberry) => blueberry.y != layer_y_position);
+    this.candles = this.candles.filter((candle) => candle.y != layer_y_position);
     this.elements.sprinkles = this.elements.sprinkles.filter(
-      (sprinkle) => sprinkle.position[1] < this.layer_height * layer + 6.5,
+        (sprinkle) => sprinkle.position[1] != layer_y_position,
     );
   }
 
