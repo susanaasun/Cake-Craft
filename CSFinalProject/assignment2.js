@@ -628,8 +628,6 @@ export class Assignment2 extends Base_Scene {
     this.layer_count = new_layer_count;
   }
 
-  place_cherry() {
-    const max_cherries = 8;
 
   // helper functions for collision detection
   distance(topping1, topping2) {
