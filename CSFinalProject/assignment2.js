@@ -34,7 +34,7 @@ export class Elements extends Scene {
       plate: new defs.Capped_Cylinder(50, 50),
       pan: new defs.Cylindrical_Tube(50, 100),
       cherry: new defs.Subdivision_Sphere(4),
-      strawberry: new defs.Rounded_Closed_Cone(20, 20),
+      strawberry: new Strawberry(4),
       blueberry: new defs.Subdivision_Sphere(4),
       cake: new defs.Capped_Cylinder(50, 50), // Added second parameter for slices
       candle: new defs.Capped_Cylinder(10, 40), // Added second parameter for slices
@@ -1359,6 +1359,26 @@ export class Assignment2 extends Base_Scene {
           this.elements.vanilla_clicked = false;
         }, 1000);
       }
+    }
+  }
+}
+class Strawberry extends defs.Subdivision_Sphere {
+  constructor(subdivisions) {
+    super(subdivisions);
+
+    const flatten_threshold = -0.5;
+    const flat_value = -1.0;
+
+    for (let i = 0; i < this.arrays.position.length; i++) {
+      const pos = this.arrays.position[i];
+      pos[0] *= 1.25;
+      pos[2] *= (1.25 - pos[1]) * 1.7;
+
+      if (pos[2] < flatten_threshold) {
+        pos[2] = flat_value;
+      }
+
+      this.arrays.normal[i] = vec3(...pos).normalized();
     }
   }
 }
