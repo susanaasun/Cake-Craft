@@ -1,4 +1,5 @@
 import { defs, tiny } from "./examples/common.js";
+var songs = document.getElementsByClassName("audio");
 
 const {
   Vector,
@@ -156,6 +157,7 @@ export class Elements extends Scene {
       }),
     };
 
+    this.done = false;
     // Cake Parameters
     this.layer_height = 1;
     this.layer_width = 3;
@@ -196,10 +198,6 @@ export class Elements extends Scene {
 
     this.sprinkles = [];
     this.sprinkles_active = false;
-
-
-
-  
   }
 }
 
@@ -247,6 +245,8 @@ export class Assignment2 extends Base_Scene {
   constructor() {
     super();
     this.elements = new Elements();
+
+    this.cutesie = true;
 
     this.layer_color = hex_color("#faf3eb");
     this.layer_count = 1;
@@ -423,13 +423,22 @@ export class Assignment2 extends Base_Scene {
     );
 
     this.key_triggered_button(
+      "Song on/off",
+      ["m"],
+      () => {
+        this.cutesie = !this.cutesie;
+      },
+      "#9c0000",
+    );
+
+    this.key_triggered_button(
       "Done!",
       ["Enter"],
       () => {
         if (this.elements.baking_done) {
+          this.done = true;
           this.start_confetti();
-          document.getElementById('audio').play();
-
+          songs[0].play();
         }
       },
       "#006400",
@@ -1158,25 +1167,25 @@ export class Assignment2 extends Base_Scene {
         // var sun_color = color(1, rgb, rgb, 1);
 
         const flame_transform = model_transform
-        .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z)) // Position the flame above the candle
-        .times(Mat4.translation(0, 0, -0.3)) // Move the origin to the bottom of the flame
-        .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
-        .times(Mat4.rotation(angle, 0, 1, 0)) // Apply the sway rotation
-        .times(Mat4.translation(0, -0.15, 0.15)) // Move the origin back
-        .times(Mat4.scale(0.2, 0.2, 0.25)) // Scale the flame to its intended size
-        .times(Mat4.translation(0, -0.8, -0.6)); // Move the origin back
+          .times(Mat4.translation(candle.x, candle.y + 1.05, candle.z)) // Position the flame above the candle
+          .times(Mat4.translation(0, 0, -0.3)) // Move the origin to the bottom of the flame
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.rotation(angle, 0, 1, 0)) // Apply the sway rotation
+          .times(Mat4.translation(0, -0.15, 0.15)) // Move the origin back
+          .times(Mat4.scale(0.2, 0.2, 0.25)) // Scale the flame to its intended size
+          .times(Mat4.translation(0, -0.8, -0.6)); // Move the origin back
 
-      // this.elements.materials.flame.override({ color: flameColor }),
+        // this.elements.materials.flame.override({ color: flameColor }),
 
-      this.elements.shapes.flame.draw(
-        context,
-        program_state,
-        flame_transform,
-        this.elements.materials.flame,
-      );
+        this.elements.shapes.flame.draw(
+          context,
+          program_state,
+          flame_transform,
+          this.elements.materials.flame,
+        );
+      }
     }
   }
-}
 
   remove_coals(model_transform) {
     const new_model_transform = model_transform.times(
@@ -1262,6 +1271,12 @@ export class Assignment2 extends Base_Scene {
 
     //Time for baking is set to 10 seconds
     if (this.elements.baking_start_time !== null) {
+      if (this.done != true && this.cutesie) {
+        songs[1].play();
+      } else {
+        songs[1].pause();
+      }
+
       const total_time =
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
       if (total_time > 10) {
