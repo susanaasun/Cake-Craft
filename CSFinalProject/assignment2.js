@@ -471,9 +471,10 @@ export class Assignment2 extends Base_Scene {
 
     const gravity = vec3(0, -0.1, 0);
     const table_height = 1.5;
-    const second_layer_top = this.layer_height * 2 + 6.5;
-    const third_layer_top = this.layer_height * 3 + 6.5;
-    const plate_height = 2;
+    const first_layer_top = this.layer_height + 6.5;
+    const second_layer_top = this.layer_height * 2 + 6.5 + this.layer_height;
+    const third_layer_top = this.layer_height * 3 + 6.5 + 2 * this.layer_height;
+    const plate_height = 3;
 
     for (let particle of this.elements.confetti) {
       particle.velocity = particle.velocity.plus(
@@ -499,12 +500,13 @@ export class Assignment2 extends Base_Scene {
         p.position[1] > table_height &&
         p.position[1] > plate_height &&
         !(
-          p.position[1] <= second_layer_top &&
-          p.position[1] >= second_layer_top - 0.2
+            p.position[1] <= first_layer_top && p.position[1] >= first_layer_top - 0.2
         ) &&
         !(
-          p.position[1] <= third_layer_top &&
-          p.position[1] >= third_layer_top - 0.2
+          p.position[1] <= second_layer_top && p.position[1] >= second_layer_top - 0.2
+        ) &&
+        !(
+          p.position[1] <= third_layer_top && p.position[1] >= third_layer_top - 0.2
         )
       );
     });
@@ -1224,7 +1226,7 @@ export class Assignment2 extends Base_Scene {
       this.elements.baking_start_time = program_state.animation_time;
     }
 
-    //Time for baking is set to 10 seconds
+    //Time for baking is set to 8 seconds
     if (this.elements.baking_start_time !== null) {
       if (this.done != true && this.cutesie) {
         songs[1].play();
@@ -1233,7 +1235,7 @@ export class Assignment2 extends Base_Scene {
       }
       const total_time =
         (program_state.animation_time - this.elements.baking_start_time) / 1000;
-      if (total_time > 8) {
+      if (total_time > 2) {
         this.elements.baking_done = true;
         this.elements.baking_end_time = program_state.animation_time;
       }
@@ -1249,6 +1251,7 @@ export class Assignment2 extends Base_Scene {
       program_state.set_camera(
         Mat4.look_at(vec3(-5, 15, 20), vec3(-5, 6, 4), vec3(0, 1, 0)),
       );
+
 
       //Draws the plate
       this.draw_plate(
