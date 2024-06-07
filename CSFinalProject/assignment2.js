@@ -631,188 +631,195 @@ export class Assignment2 extends Base_Scene {
   place_cherry() {
     const max_cherries = 8;
 
-    if (this.cherries.length >= max_cherries) return;
-
-    const min_distance = 2;
-
-    const distance = (a, b) =>
-      Math.sqrt(
-        Math.pow(a.x - b.x, 2) +
-          Math.pow(a.y - b.y, 2) +
-          Math.pow(a.z - b.z, 2),
-      );
-
-    let new_cherry_position;
-    let valid_position = false;
-
-    while (!valid_position) {
-      const angle = Math.random() * 2 * Math.PI;
-      const max_radius = 5 - (this.layer_count - 1);
-      const radius = Math.random() * max_radius;
-      const x = radius * Math.cos(angle) - 5;
-      const z = radius * Math.sin(angle) + 4;
-      let y = this.layer_height * this.layer_count + 6.5;
-
-      if (this.layer_count === 2) {
-        y += this.layer_height;
-      } else if (this.layer_count === 3) {
-        y += 2 * this.layer_height;
-      }
-
-      new_cherry_position = { x, y, z };
-      valid_position = [
-        ...this.cherries,
-        ...this.strawberries,
-        ...this.blueberries,
-        ...this.candles,
-      ].every(
-        (existing) => distance(new_cherry_position, existing) >= min_distance,
-      );
-    }
-
-    this.cherries.push(new_cherry_position);
+  // helper functions for collision detection
+  distance(topping1, topping2) {
+    return Math.sqrt(Math.pow(topping1.x - topping2.x, 2) + Math.pow(topping1.z - topping2.z, 2));
   }
 
-  place_strawberry() {
-    const max_strawberries = 8;
-
-    if (this.strawberries.length >= max_strawberries) return;
-
-    const min_distance = 2;
-
-    const distance = (a, b) =>
-      Math.sqrt(
-        Math.pow(a.x - b.x, 2) +
-          Math.pow(a.y - b.y, 2) +
-          Math.pow(a.z - b.z, 2),
-      );
-
-    let new_strawberry_position;
-    let valid_position = false;
-
-    while (!valid_position) {
-      const angle = Math.random() * 2 * Math.PI;
-      const max_radius = 5 - (this.layer_count - 1);
-      const radius = Math.random() * max_radius;
-      const x = radius * Math.cos(angle) - 5;
-      const z = radius * Math.sin(angle) + 4;
-      let y = this.layer_height * this.layer_count + 6.5;
-
-      if (this.layer_count === 2) {
-        y += this.layer_height;
-      } else if (this.layer_count === 3) {
-        y += 2 * this.layer_height;
-      }
-
-      new_strawberry_position = { x, y, z };
-      valid_position = [
-        ...this.strawberries,
-        ...this.cherries,
-        ...this.blueberries,
-        ...this.candles,
-      ].every(
-        (existing) =>
-          distance(new_strawberry_position, existing) >= min_distance,
-      );
-    }
-
-    this.strawberries.push(new_strawberry_position);
+  direction(topping1, topping2) {
+    let dx = topping2.x - topping1.x;
+    let dz = topping2.z - topping1.z;
+    let dist = Math.sqrt(dx * dx + dz * dz);
+    if (dist == 0) return { dx: 0, dz: 0 };
+    return { dx: dx / dist, dz: dz / dist };
   }
 
-  place_blueberry() {
-    const max_blueberries = 15;
+  resolve_collision(topping1, topping2, min_distance) {
+    let dist = this.distance(topping1, topping2);
+    if (dist < min_distance) {
+      let move_distance = (min_distance - dist) / 2;
+      let dir = this.direction(topping1, topping2);
+      let elasticity = 0.5;
 
-    if (this.blueberries.length >= max_blueberries) return;
+      topping1.x -= dir.dx * move_distance;
+      topping1.z -= dir.dz * move_distance;
+      topping2.x += dir.dx * move_distance;
+      topping2.z += dir.dz * move_distance;
 
-    const min_distance = 1.5;
+      // elastic collision effect
+      topping1.velocity = -topping1.velocity * elasticity;
+      topping2.velocity = -topping2.velocity * elasticity;
 
-    const distance = (a, b) =>
-      Math.sqrt(
-        Math.pow(a.x - b.x, 2) +
-          Math.pow(a.y - b.y, 2) +
-          Math.pow(a.z - b.z, 2),
-      );
-
-    let new_blueberry_position;
-    let valid_position = false;
-
-    while (!valid_position) {
-      const angle = Math.random() * 2 * Math.PI;
-      const max_radius = this.layer_radius - (this.layer_count - 1);
-      const radius = Math.random() * max_radius;
-      const x = radius * Math.cos(angle) - 5;
-      const z = radius * Math.sin(angle) + 4;
-      let y = this.layer_height * this.layer_count + 6.5;
-
-      if (this.layer_count === 2) {
-        y += this.layer_height;
-      } else if (this.layer_count === 3) {
-        y += 2 * this.layer_height;
-      }
-
-      new_blueberry_position = { x, y, z };
-      valid_position = [
-        ...this.blueberries,
-        ...this.strawberries,
-        ...this.cherries,
-        ...this.candles,
-      ].every(
-        (existing) =>
-          distance(new_blueberry_position, existing) >= min_distance,
-      );
+      let max_radius = this.layer_radius - (this.layer_count - 1);
+      topping1.x = Math.max(-max_radius, Math.min(max_radius, topping1.x));
+      topping1.z = Math.max(-max_radius, Math.min(max_radius, topping1.z));
+      topping2.x = Math.max(-max_radius, Math.min(max_radius, topping2.x));
+      topping2.z = Math.max(-max_radius, Math.min(max_radius, topping2.z));
     }
-
-    this.blueberries.push(new_blueberry_position);
   }
 
-  place_candle() {
-    const max_candles = 10;
-    const min_distance = 1;
+  apply_gravity_and_collision(topping, program_state) {
+    const gravity = -9.8;
+    let cake_top_y = this.layer_height * this.layer_count + 6.5;
+    cake_top_y += (this.layer_count - 1) * this.layer_height;
+    let dt = program_state.animation_delta_time / 1000;
+    topping.velocity += gravity * dt;
+    topping.y += topping.velocity * dt;
+
+    if (topping.y <= cake_top_y) {
+      topping.y = cake_top_y;
+      topping.velocity = -topping.velocity * 0.5;
+
+      let all_toppings = [...this.cherries, ...this.strawberries, ...this.blueberries, ...this.candles];
+
+      let collisionResolved = false;
+
+      do {
+        collisionResolved = false;
+        for (let other of all_toppings) {
+          if (other !== topping && this.distance(topping, other) < this.min_distance) {
+            this.resolve_collision(topping, other, this.min_distance);
+            collisionResolved = true;
+          }
+        }
+      } while (collisionResolved);
+    }
+  }
+
+  place_toppings(toppingsArray, max_toppings, min_distance) {
+    this.min_distance = min_distance;
+
     let attempts = 0;
-    const max_attempts = 100;
-    let new_candle_position;
+    let max_attempts = 200;
+    if (toppingsArray.length >= max_toppings) return;
+
+    let new_topping_position;
     let valid_position = false;
 
-    if (this.candles.length >= max_candles) return;
-
-    const distance = (a, b) =>
-      Math.sqrt(
-        Math.pow(a.x - b.x, 2) +
-          Math.pow(a.y - b.y, 2) +
-          Math.pow(a.z - b.z, 2),
-      );
-
-    while (!valid_position && attempts < max_attempts) {
+    while (attempts < max_attempts && !valid_position) {
       attempts++;
       const angle = Math.random() * 2 * Math.PI;
       const max_radius = this.layer_radius - (this.layer_count - 1);
       const radius = Math.random() * max_radius;
       const x = radius * Math.cos(angle) - 5;
       const z = radius * Math.sin(angle) + 4;
-      let y = this.layer_height * this.layer_count + 6.5;
+      let y = this.layer_height * this.layer_count + 13;
+      y += (this.layer_count - 1) * this.layer_height;
+      new_topping_position = { x, y, z, velocity: 0 };
 
-      if (this.layer_count === 2) {
-        y += this.layer_height;
-      } else if (this.layer_count === 3) {
-        y += 2 * this.layer_height;
-      }
-
-      new_candle_position = { x, y, z };
-      valid_position = [
-        ...this.candles,
-        ...this.strawberries,
-        ...this.cherries,
-        ...this.blueberries,
-      ].every(
-        (existing) => distance(new_candle_position, existing) >= min_distance,
+      let all_toppings = [...this.cherries, ...this.strawberries, ...this.blueberries, ...this.candles];
+      valid_position = all_toppings.every(
+          (existing) => this.distance(new_topping_position, existing) >= min_distance
       );
     }
 
     if (valid_position) {
-      this.candles.push(new_candle_position);
-    } else if (attempts >= max_attempts) {
-      console.warn("Failed to place candle after maximum attempts");
+      toppingsArray.push(new_topping_position);
     }
+  }
+
+  draw_toppings(context, program_state, model_transform) {
+    for (let cherry of this.cherries) {
+      this.apply_gravity_and_collision(cherry, program_state);
+
+      const cherry_transform = model_transform
+          .times(Mat4.translation(cherry.x, cherry.y, cherry.z))
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.scale(0.5, 0.5, 0.5));
+
+      this.elements.shapes.cherry.draw(
+          context,
+          program_state,
+          cherry_transform,
+          this.elements.materials.cherry,
+      );
+    }
+
+    for (let strawberry of this.strawberries) {
+      this.apply_gravity_and_collision(strawberry, program_state);
+      const strawberry_transform = model_transform
+          .times(Mat4.translation(strawberry.x, strawberry.y, strawberry.z))
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.scale(0.4, 0.4, 0.4));
+
+      this.elements.shapes.strawberry.draw(
+          context,
+          program_state,
+          strawberry_transform,
+          this.elements.materials.strawberry,
+      );
+    }
+
+    for (let blueberry of this.blueberries) {
+      this.apply_gravity_and_collision(blueberry, program_state);
+      const blueberry_transform = model_transform
+          .times(Mat4.translation(blueberry.x, blueberry.y, blueberry.z))
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.scale(0.25, 0.25, 0.25));
+
+      this.elements.shapes.blueberry.draw(
+          context,
+          program_state,
+          blueberry_transform,
+          this.elements.materials.blueberry,
+      );
+    }
+
+    for (let candle of this.candles) {
+      this.apply_gravity_and_collision(candle, program_state);
+      const candle_transform = model_transform
+          .times(Mat4.translation(candle.x, candle.y, candle.z))
+          .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+          .times(Mat4.scale(0.2, 0.2, 1.3));
+
+      this.elements.shapes.candle.draw(
+          context,
+          program_state,
+          candle_transform,
+          this.elements.materials.candle
+      );
+
+      if (this.light_candles) {
+        let angle = (0.25 * Math.PI / 4 * Math.sin(Math.PI*program_state.animation_time / 1000));
+        const flame_transform = model_transform
+            .times(Mat4.translation(candle.x, candle.y + 1.0, candle.z))
+            .times(Mat4.rotation(-(Math.PI / 2), 1, 0, 0))
+            .times(Mat4.rotation(angle, 0, 1, 0))
+            .times(Mat4.scale(0.2, 0.2, 0.3));
+        this.elements.shapes.flame.draw(
+            context,
+            program_state,
+            flame_transform,
+            this.elements.materials.flame
+        );
+      }
+    }
+  }
+
+  place_cherry(){
+    this.place_toppings(this.cherries, 4, 2);
+  }
+
+  place_strawberry() {
+    this.place_toppings(this.strawberries, 4, 2);
+  }
+
+  place_blueberry() {
+    this.place_toppings(this.blueberries, 12, 1);
+  }
+
+  place_candle(){
+    this.place_toppings(this.candles, 6, 1);
   }
 
   draw_oven(context, program_state, model_transform) {
