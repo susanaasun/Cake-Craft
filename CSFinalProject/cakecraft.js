@@ -576,7 +576,7 @@ export class CakeCraft extends Base_Scene {
 
     for (let sprinkle of this.elements.sprinkles) {
       let sprinkle_transform = Mat4.translation(...sprinkle.position).times(
-        Mat4.scale(0.1, 0.1, 0.1),
+        Mat4.scale(0.075, 0.075, 0.075),
       );
       this.elements.shapes.sprinkles.draw(
         context,
