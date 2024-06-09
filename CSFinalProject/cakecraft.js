@@ -300,7 +300,7 @@ export class CakeCraft extends Base_Scene {
     if (this.elements.baking_done == false) {
       this.key_triggered_button(
         "Red Velvet",
-        ["r"],
+        ["n"],
         () => {
           if (!this.elements.baking_done) {
             this.set_batter_colors("r");
@@ -325,7 +325,7 @@ export class CakeCraft extends Base_Scene {
       );
       this.key_triggered_button(
         "Vanilla",
-        ["v"],
+        ["y"],
         () => {
           if (!this.elements.baking_done) {
             this.set_batter_colors("w");
@@ -337,7 +337,7 @@ export class CakeCraft extends Base_Scene {
       );
       this.key_triggered_button(
         "Pink Frosting",
-        ["p"],
+        ["k"],
         () => {
           if (this.elements.baking_done) {
             this.set_frosting_colors("p");
@@ -366,7 +366,7 @@ export class CakeCraft extends Base_Scene {
         "#6099DA",
       );
     } else {
-      this.key_triggered_button("Pink Frosting", ["p"], () =>
+      this.key_triggered_button("Pink Frosting", ["k"], () =>
         this.set_frosting_colors("p"),
       );
       this.key_triggered_button("White Frosting", ["w"], () =>
@@ -385,54 +385,54 @@ export class CakeCraft extends Base_Scene {
     );
     this.key_triggered_button(
       "Decrease Cake Layers",
-      ["d"],
+      ["j"],
       () => this.change_layer_count(-1),
       "#B76FCA",
     );
     this.key_triggered_button(
       "Cherry",
-      ["p"],
+      ["l"],
       () => this.place_cherry(),
       "#F81B36",
     );
     this.key_triggered_button(
       "Strawberry",
-      ["s"],
+      ["q"],
       () => this.place_strawberry(),
       "#EF2F86",
     );
 
     this.key_triggered_button(
       "Blueberry",
-      ["t"],
+      ["x"],
       () => this.place_blueberry(),
       "#4f86f7",
     );
 
     this.key_triggered_button(
       "Sprinkles",
-      ["o"],
+      ["g"],
       () => this.start_sprinkles(),
       "#FFD700",
     );
 
     this.key_triggered_button(
       "Candle",
-      ["c"],
+      ["e"],
       () => this.place_candle(),
       "#4758ca",
     );
 
     this.key_triggered_button(
       "Light/Unlight Candles",
-      ["u"],
+      ["7"],
       () => (this.light_candles = !this.light_candles),
       "#eca202",
     );
 
     this.key_triggered_button(
       "Remove all toppings",
-      ["d"],
+      ["h"],
       () => this.remove_all_toppings(),
       "#1fa88f",
     );
