@@ -426,7 +426,11 @@ export class CakeCraft extends Base_Scene {
     this.key_triggered_button(
       "Light/Unlight Candles",
       ["7"],
-      () => (this.light_candles = !this.light_candles),
+      () => {
+        if (this.candles.length > 0 ) {
+          this.light_candles = !this.light_candles;
+        }
+      },
       "#eca202",
     );
 
@@ -1050,7 +1054,7 @@ export class CakeCraft extends Base_Scene {
   draw_table(context, program_state, model_transform) {
     let table_top_transform = model_transform
       .times(Mat4.rotation(Math.PI / 2, 1, 0, 0))
-      .times(Mat4.translation(-5, -5, 0))
+      .times(Mat4.translation(-5, -5, -4))
       .times(Mat4.scale(100, 20, 0.2));
 
     this.elements.shapes.table.draw(
@@ -1213,7 +1217,7 @@ export class CakeCraft extends Base_Scene {
         context,
         program_state,
         Mat4.identity()
-          .times(Mat4.translation(0, 2, 0))
+          .times(Mat4.translation(0, 4.8, 2.2))
           .times(Mat4.scale(5, 0.2, 5)),
       );
 
