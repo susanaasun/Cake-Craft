@@ -1196,15 +1196,16 @@ export class CakeCraft extends Base_Scene {
     }
 
     if (this.elements.baking_done) {
+      if (!this.camera_set) {
+        program_state.set_camera(Mat4.look_at(vec3(-5, 15, 20), vec3(-5, 6, 4), vec3(0, 1, 0)));
+        this.camera_set = true;
+      }
+
       this.draw_cake(context, program_state, model_transform);
       this.draw_table(context, program_state, model_transform);
       this.draw_tableback(context, program_state, model_transform);
 
       model_transform = this.remove_coals(model_transform);
-
-      program_state.set_camera(
-        Mat4.look_at(vec3(-5, 15, 20), vec3(-5, 6, 4), vec3(0, 1, 0)),
-      );
 
 
       //Draws the plate
