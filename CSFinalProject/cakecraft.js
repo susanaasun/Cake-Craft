@@ -1,4 +1,5 @@
 import { defs, tiny } from "./examples/common.js";
+import { QuadTree, Rectangle } from './toppingcollision.js';
 var songs = document.getElementsByClassName("audio");
 
 const {
@@ -259,7 +260,21 @@ export class CakeCraft extends Base_Scene {
     this.cherries = [];
     this.blueberries = [];
     this.candles = [];
+
+    this.updateQuadTreeBoundary();
+
   }
+
+  calculateMaxRadius() {
+    return this.layer_radius - (this.layer_count - 1) + 1;
+  }
+
+  updateQuadTreeBoundary() {
+    const max_radius = this.calculateMaxRadius();
+    let boundary = new Rectangle(-5, 4, max_radius, max_radius);
+    this.quadTree = new QuadTree(boundary, 4);
+  }
+
 
   //Changes the flavors of the cake
   set_batter_colors(color = "w") {
@@ -636,7 +651,7 @@ export class CakeCraft extends Base_Scene {
   }
 
   change_layer_count(change) {
-    const new_layer_count = Math.max(1, this.layer_count + change);
+    const new_layer_count = Math.min(3, Math.max(1, this.layer_count + change));
     if (change < 0 && this.layer_count > new_layer_count) {
       this.remove_toppings_from_layer(this.layer_count);
     } else if (change > 0) {
@@ -644,6 +659,7 @@ export class CakeCraft extends Base_Scene {
       this.adjust_toppings_to_previous_layer();
     }
     this.layer_count = new_layer_count;
+    this.updateQuadTreeBoundary();
   }
 
 
@@ -699,27 +715,23 @@ export class CakeCraft extends Base_Scene {
       topping.y = cake_top_y;
       topping.velocity = -topping.velocity * 0.5;
 
-      let all_toppings = [
-        ...this.cherries,
-        ...this.strawberries,
-        ...this.blueberries,
-        ...this.candles,
-      ];
-
+      let range = new Rectangle(topping.x, topping.y, 2, 2);
+      let possibleCollisions = this.quadTree.query(range);
       let collisionResolved = false;
 
       do {
         collisionResolved = false;
-        for (let other of all_toppings) {
+        for (let other of possibleCollisions) {
           if (
-            other !== topping &&
-            this.distance(topping, other) < this.min_distance
+              other !== topping &&
+              this.distance(topping, other) < this.min_distance
           ) {
             this.resolve_collision(topping, other, this.min_distance);
             collisionResolved = true;
           }
         }
       } while (collisionResolved);
+
     }
   }
 
@@ -733,23 +745,26 @@ export class CakeCraft extends Base_Scene {
     let new_topping_position;
     let valid_position = false;
 
+    let all_toppings = [
+      ...this.cherries,
+      ...this.strawberries,
+      ...this.blueberries,
+      ...this.candles,
+    ];
+
+    const max_radius = this.calculateMaxRadius();
+
     while (attempts < max_attempts && !valid_position) {
       attempts++;
       const angle = Math.random() * 2 * Math.PI;
-      const max_radius = this.layer_radius - (this.layer_count - 1);
-      const radius = Math.random() * max_radius;
+      const radius = Math.random() * (max_radius - this.min_distance) + this.min_distance;
       const x = radius * Math.cos(angle) - 5;
       const z = radius * Math.sin(angle) + 4;
       let y = this.layer_height * this.layer_count + 13;
       y += (this.layer_count - 1) * this.layer_height;
       new_topping_position = { x, y, z, velocity: 0 };
 
-      let all_toppings = [
-        ...this.cherries,
-        ...this.strawberries,
-        ...this.blueberries,
-        ...this.candles,
-      ];
+
       valid_position = all_toppings.every(
         (existing) =>
           this.distance(new_topping_position, existing) >= min_distance,
@@ -758,6 +773,7 @@ export class CakeCraft extends Base_Scene {
 
     if (valid_position) {
       toppingsArray.push(new_topping_position);
+      this.quadTree.insert(new_topping_position);
     }
   }
 
@@ -852,19 +868,51 @@ export class CakeCraft extends Base_Scene {
   }
 
   place_cherry() {
-    this.place_toppings(this.cherries, 4, 2);
+    if (this.layer_count == 1) {
+      this.place_toppings(this.cherries, 4, 2);
+    }
+    else if (this.layer_count == 2) {
+      this.place_toppings(this.cherries, 3, 1);
+    }
+    else if (this.layer_count == 3) {
+      this.place_toppings(this.cherries, 2, 0.5);
+    }
   }
 
   place_strawberry() {
-    this.place_toppings(this.strawberries, 4, 2);
+    if (this.layer_count == 1) {
+      this.place_toppings(this.strawberries, 4, 2);
+    }
+    else if (this.layer_count == 2) {
+      this.place_toppings(this.strawberries, 3, 1);
+    }
+    else if (this.layer_count == 3) {
+      this.place_toppings(this.strawberries, 2, 0.5);
+    }
   }
 
   place_blueberry() {
-    this.place_toppings(this.blueberries, 12, 1);
+    if (this.layer_count == 1) {
+      this.place_toppings(this.blueberries, 12, 1);
+    }
+    else if (this.layer_count == 2) {
+      this.place_toppings(this.blueberries, 9, 0.5);
+    }
+    else if (this.layer_count == 3) {
+      this.place_toppings(this.blueberries, 6, 0.25);
+    }
   }
 
   place_candle() {
-    this.place_toppings(this.candles, 6, 1);
+    if (this.layer_count == 1) {
+      this.place_toppings(this.candles, 6, 1);
+    }
+    else if (this.layer_count == 2) {
+      this.place_toppings(this.candles, 5, 0.5);
+    }
+    else if (this.layer_count == 3) {
+      this.place_toppings(this.candles, 4, 0.25);
+    }
   }
 
   draw_oven(context, program_state, model_transform) {
@@ -1226,6 +1274,7 @@ export class CakeCraft extends Base_Scene {
     }
   }
 }
+
 class Strawberry extends defs.Subdivision_Sphere {
   constructor(subdivisions) {
     super(subdivisions);
